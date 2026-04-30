@@ -7,7 +7,7 @@ use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use tracing::{error, info, warn};
 
 // Share the PgPool through Serenity's TypeMap
@@ -145,8 +145,28 @@ async fn main() {
     // Share the pool via TypeMap
     {
         let mut data = client.data.write().await;
-        data.insert::<DbPool>(pool);
+        data.insert::<DbPool>(pool.clone());
     }
+
+    // Background heartbeat: update last_heartbeat_at every 30 s
+    let heartbeat_pool = pool;
+    tokio::spawn(async move {
+        let mut interval = tokio::time::interval(Duration::from_secs(30));
+        interval.tick().await; // skip the immediate first tick
+        loop {
+            interval.tick().await;
+            if let Err(e) = sqlx::query(
+                "UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = 'uranus'",
+            )
+            .execute(&heartbeat_pool)
+            .await
+            {
+                warn!("heartbeat failed: {e}");
+            } else {
+                info!("heartbeat sent");
+            }
+        }
+    });
 
     if let Err(e) = client.start().await {
         error!("Discord client error: {e}");
