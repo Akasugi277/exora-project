@@ -1,0 +1,37 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+
+# Java
+.gradle/
+build/
+out/
+*.class
+
+# Rust
+target/
+
+# Haskell
+.stack-work/
+dist-newstyle/
+
+# Misc
+coverage/
+*.tmp

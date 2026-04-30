@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package exora.v1;
+
+message BotHeartbeat {
+  string bot_name = 1;
+  string language = 2;
+  int64 unix_time = 3;
+  string status = 4;
+}
+
+message CommandExecuted {
+  string bot_name = 1;
+  string guild_id = 2;
+  string user_id = 3;
+  string command_name = 4;
+  string status = 5;
+  int32 latency_ms = 6;
+  int64 unix_time = 7;
+}
