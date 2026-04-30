@@ -7,7 +7,7 @@ import Data.Coerce                      (coerce)
 import Data.Default                     (def)
 import qualified Data.ByteString.Char8  as BS
 import qualified Data.Text              as T
-import Data.Time.Clock                  (diffUTCTime, getCurrentTime)
+import Data.Time.Clock                  (diffUTCTime, getCurrentTime, UTCTime)
 import Discord
 import Discord.Types
 import qualified Discord.Requests       as R
@@ -31,14 +31,15 @@ main = do
   dbUrl  <- requireEnv "DATABASE_URL"
   redisH <- maybe "localhost" id <$> lookupEnv "REDIS_HOST"
 
-  conn <- checkGalileo dbUrl
+  conn    <- checkGalileo dbUrl
+  startAt <- getCurrentTime
   upsertBotInstance conn
   void $ forkIO $ heartbeatLoop conn
   checkRedis redisH
 
   err <- runDiscord $ def
     { discordToken   = tok
-    , discordOnEvent = handleEvent conn
+    , discordOnEvent = handleEvent conn startAt
     }
   hPutStrLn stderr ("[neptune] " <> T.unpack err)
 
@@ -46,24 +47,30 @@ main = do
 -- Event handler
 -- ---------------------------------------------------------------------------
 
-handleEvent :: PG.Connection -> Event -> DiscordHandler ()
-handleEvent conn (Ready {}) = do
+handleEvent :: PG.Connection -> UTCTime -> Event -> DiscordHandler ()
+handleEvent conn _ (Ready {}) = do
   liftIO $ putStrLn "[neptune] online (Haskell / discord-haskell)"
   result <- restCall R.GetCurrentUser
   case result of
     Left  err -> liftIO $ hPutStrLn stderr ("[neptune] GetCurrentUser error: " <> show err)
-    Right bot ->
+    Right bot -> do
       void $ restCall $ R.CreateGlobalApplicationCommand
         (coerce (userId bot))
         def
           { createApplicationCommandName        = "ping"
           , createApplicationCommandDescription = "Pong! Verify that Neptune is online."
           }
-handleEvent conn (InteractionCreate intr) = handleInteraction conn intr
-handleEvent _    _                         = pure ()
+      void $ restCall $ R.CreateGlobalApplicationCommand
+        (coerce (userId bot))
+        def
+          { createApplicationCommandName        = "info"
+          , createApplicationCommandDescription = "Show Neptune bot information and uptime."
+          }
+handleEvent conn startAt (InteractionCreate intr) = handleInteraction conn startAt intr
+handleEvent _    _       _                         = pure ()
 
-handleInteraction :: PG.Connection -> Interaction -> DiscordHandler ()
-handleInteraction conn intr =
+handleInteraction :: PG.Connection -> UTCTime -> Interaction -> DiscordHandler ()
+handleInteraction conn startAt intr =
   case interactionData intr of
     Just (ApplicationCommandData { applicationCommandDataName = "ping" }) -> do
       start <- liftIO getCurrentTime
@@ -79,7 +86,31 @@ handleInteraction conn intr =
       let latencyMs = round (diffUTCTime end start * 1000) :: Int
           status    = case res of { Right _ -> "ok"; Left _ -> "error" }
       liftIO $ logCommand conn "ping" status latencyMs
+    Just (ApplicationCommandData { applicationCommandDataName = "info" }) -> do
+      start  <- liftIO getCurrentTime
+      now    <- liftIO getCurrentTime
+      let totalSecs = round (diffUTCTime now startAt) :: Int
+          hours     = totalSecs `div` 3600
+          mins      = (totalSecs `mod` 3600) `div` 60
+          secs      = totalSecs `mod` 60
+          uptime    = show hours <> "h " <> pad mins <> "m " <> pad secs <> "s"
+          reply     = "\x1FA90 **Neptune** \x2014 Bot Information\n"
+                   <> "\x2022 Language  : Haskell / discord-haskell\n"
+                   <> "\x2022 Version   : 0.1.0\n"
+                   <> "\x2022 Uptime    : " <> uptime
+      res  <- restCall $ R.CreateInteractionResponse
+        (interactionId    intr)
+        (interactionToken intr)
+        ( InteractionResponseChannelMessage $
+            def { interactionResponseMessageContent = Just (T.pack reply) }
+        )
+      end <- liftIO getCurrentTime
+      let latencyMs = round (diffUTCTime end start * 1000) :: Int
+          status    = case res of { Right _ -> "ok"; Left _ -> "error" }
+      liftIO $ logCommand conn "info" status latencyMs
     _ -> pure ()
+  where
+    pad n = (if n < 10 then "0" else "") <> show n
 
 -- ---------------------------------------------------------------------------
 -- DB helpers

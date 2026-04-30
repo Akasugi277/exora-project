@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { Client, Events, GatewayIntentBits, REST, Routes } from 'discord.js';
 import { pingCommand, handlePing } from './commands/ping';
+import { infoCommand, handleInfo } from './commands/info';
 import { upsertBotInstance, startHeartbeat, pool } from './db';
 
 const token = requireEnv('DISCORD_TOKEN_SATURN');
@@ -17,7 +18,7 @@ async function main(): Promise<void> {
 
     const rest = new REST().setToken(token);
     await rest.put(Routes.applicationCommands(c.user.id), {
-      body: [pingCommand.toJSON()],
+      body: [pingCommand.toJSON(), infoCommand.toJSON()],
     });
     console.log('[saturn] Slash commands registered');
 
@@ -34,6 +35,11 @@ async function main(): Promise<void> {
     if (interaction.commandName === 'ping') {
       await handlePing(interaction).catch((e: unknown) =>
         console.error('[saturn] /ping error:', e),
+      );
+    }
+    if (interaction.commandName === 'info') {
+      await handleInfo(interaction).catch((e: unknown) =>
+        console.error('[saturn] /info error:', e),
       );
     }
   });
