@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Exception                (SomeException, catch)
 import Control.Monad                    (void)
 import Data.Coerce                      (coerce)
 import Data.Default                     (def)
@@ -21,7 +22,8 @@ import System.IO                       (hPutStrLn, stderr)
 
 main :: IO ()
 main = do
-  loadFile defaultConfig
+  -- Load .env if present; silently skip in Docker where env vars are injected
+  loadFile defaultConfig `catch` (\(_ :: SomeException) -> pure ())
 
   tok    <- T.pack <$> requireEnv "DISCORD_TOKEN_NEPTUNE"
   dbUrl  <- requireEnv "DATABASE_URL"
