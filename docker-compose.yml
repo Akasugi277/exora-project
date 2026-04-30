@@ -35,6 +35,76 @@ services:
       timeout: 5s
       retries: 5
 
+  jupiter:
+    build:
+      context: ./apps/bots/jupiter
+    container_name: exora-jupiter
+    env_file: .env
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN_JUPITER}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  saturn:
+    build:
+      context: ./apps/bots/saturn
+    container_name: exora-saturn
+    env_file: .env
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN_SATURN}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  uranus:
+    build:
+      context: ./apps/bots/uranus
+    container_name: exora-uranus
+    env_file: .env
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN_URANUS}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  neptune:
+    build:
+      context: ./apps/bots/neptune
+    container_name: exora-neptune
+    env_file: .env
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN_NEPTUNE}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  dashboard:
+    build:
+      context: ./apps/dashboard/web-ui
+    container_name: exora-dashboard
+    env_file: .env
+    ports:
+      - "${DASHBOARD_PORT:-3000}:3000"
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   galileo_pg_data:
   redis_data:
