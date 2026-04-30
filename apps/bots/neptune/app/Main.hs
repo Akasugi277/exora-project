@@ -6,6 +6,7 @@ import Data.Coerce                      (coerce)
 import Data.Default                     (def)
 import qualified Data.ByteString.Char8  as BS
 import qualified Data.Text              as T
+import Data.Time.Clock                  (diffUTCTime, getCurrentTime)
 import Discord
 import Discord.Types
 import qualified Discord.Requests       as R
@@ -29,12 +30,13 @@ main = do
   dbUrl  <- requireEnv "DATABASE_URL"
   redisH <- maybe "localhost" id <$> lookupEnv "REDIS_HOST"
 
-  checkGalileo dbUrl
+  conn <- checkGalileo dbUrl
+  upsertBotInstance conn
   checkRedis redisH
 
   err <- runDiscord $ def
     { discordToken   = tok
-    , discordOnEvent = handleEvent
+    , discordOnEvent = handleEvent conn
     }
   hPutStrLn stderr ("[neptune] " <> T.unpack err)
 
@@ -42,29 +44,28 @@ main = do
 -- Event handler
 -- ---------------------------------------------------------------------------
 
-handleEvent :: Event -> DiscordHandler ()
-handleEvent (Ready {}) = do
+handleEvent :: PG.Connection -> Event -> DiscordHandler ()
+handleEvent conn (Ready {}) = do
   liftIO $ putStrLn "[neptune] online (Haskell / discord-haskell)"
-  -- The bot's user ID equals the application ID for all modern bots.
   result <- restCall R.GetCurrentUser
   case result of
     Left  err -> liftIO $ hPutStrLn stderr ("[neptune] GetCurrentUser error: " <> show err)
     Right bot ->
       void $ restCall $ R.CreateGlobalApplicationCommand
-        (coerce (userId bot))                 -- UserId ≅ ApplicationId
+        (coerce (userId bot))
         def
           { createApplicationCommandName        = "ping"
           , createApplicationCommandDescription = "Pong! Verify that Neptune is online."
           }
+handleEvent conn (InteractionCreate intr) = handleInteraction conn intr
+handleEvent _    _                         = pure ()
 
-handleEvent (InteractionCreate intr) = handleInteraction intr
-handleEvent _                         = pure ()
-
-handleInteraction :: Interaction -> DiscordHandler ()
-handleInteraction intr =
+handleInteraction :: PG.Connection -> Interaction -> DiscordHandler ()
+handleInteraction conn intr =
   case interactionData intr of
-    Just (ApplicationCommandData { applicationCommandDataName = "ping" }) ->
-      void $ restCall $ R.CreateInteractionResponse
+    Just (ApplicationCommandData { applicationCommandDataName = "ping" }) -> do
+      start <- liftIO getCurrentTime
+      res   <- restCall $ R.CreateInteractionResponse
         (interactionId    intr)
         (interactionToken intr)
         ( InteractionResponseChannelMessage $
@@ -72,23 +73,46 @@ handleInteraction intr =
                     Just "\x1FA90 Pong! **Neptune** (Haskell / discord-haskell) is online."
                 }
         )
+      end <- liftIO getCurrentTime
+      let latencyMs = round (diffUTCTime end start * 1000) :: Int
+          status    = case res of { Right _ -> "ok"; Left _ -> "error" }
+      liftIO $ logCommand conn "ping" status latencyMs
     _ -> pure ()
 
 -- ---------------------------------------------------------------------------
--- Health checks
+-- DB helpers
 -- ---------------------------------------------------------------------------
 
-checkGalileo :: String -> IO ()
+checkGalileo :: String -> IO PG.Connection
 checkGalileo url = do
   conn <- PG.connectPostgreSQL (BS.pack url)
   _    <- PG.query_ conn "SELECT 1 :: INT" :: IO [PG.Only Int]
-  PG.close conn
   putStrLn "[neptune] Galileo DB connected"
+  return conn
+
+upsertBotInstance :: PG.Connection -> IO ()
+upsertBotInstance conn = do
+  void $ PG.execute conn
+    "INSERT INTO bot_instances (bot_name, language, status, last_heartbeat_at) \
+    \VALUES ('neptune', 'Haskell', 'online', NOW()) \
+    \ON CONFLICT (bot_name) DO UPDATE SET status = 'online', last_heartbeat_at = NOW()"
+    ()
+
+logCommand :: PG.Connection -> String -> String -> Int -> IO ()
+logCommand conn cmdName status latencyMs =
+  void $ PG.execute conn
+    "INSERT INTO command_logs (bot_name, command_name, status, latency_ms, created_at) \
+    \VALUES ('neptune', ?, ?, ?, NOW())"
+    (cmdName, status, latencyMs)
+
+-- ---------------------------------------------------------------------------
+-- Redis health check
+-- ---------------------------------------------------------------------------
 
 checkRedis :: String -> IO ()
 checkRedis host = do
-  conn <- Redis.connect Redis.defaultConnectInfo { Redis.connectHost = host }
-  r    <- Redis.runRedis conn Redis.ping
+  redisConn <- Redis.connect Redis.defaultConnectInfo { Redis.connectHost = host }
+  r    <- Redis.runRedis redisConn Redis.ping
   case r of
     Right _ -> putStrLn "[neptune] Redis connected"
     Left  e -> hPutStrLn stderr ("[neptune] Redis error: " <> show e)
