@@ -40,6 +40,9 @@ services:
       context: ./apps/bots/jupiter
     container_name: exora-jupiter
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
     restart: unless-stopped
     networks: [exora]
     depends_on:
@@ -53,6 +56,9 @@ services:
       context: ./apps/bots/saturn
     container_name: exora-saturn
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
     restart: unless-stopped
     networks: [exora]
     depends_on:
@@ -66,6 +72,9 @@ services:
       context: ./apps/bots/uranus
     container_name: exora-uranus
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
     restart: unless-stopped
     networks: [exora]
     depends_on:
@@ -79,6 +88,10 @@ services:
       context: ./apps/bots/neptune
     container_name: exora-neptune
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
     restart: unless-stopped
     networks: [exora]
     depends_on:
@@ -92,6 +105,9 @@ services:
       context: ./apps/dashboard/web-ui
     container_name: exora-dashboard
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
     ports:
       - "${DASHBOARD_PORT:-3000}:3000"
     restart: unless-stopped
