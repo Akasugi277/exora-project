@@ -18,14 +18,14 @@ public final class GalileoDB {
 
     private static final Logger log = LoggerFactory.getLogger(GalileoDB.class);
     private static volatile Connection connection;
-    private static final ScheduledExecutorService scheduler =
-            Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "jupiter-heartbeat");
-                t.setDaemon(true);
-                return t;
-            });
+    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "jupiter-heartbeat");
+        t.setDaemon(true);
+        return t;
+    });
 
-    private GalileoDB() {}
+    private GalileoDB() {
+    }
 
     public static void init(String jdbcUrl) throws Exception {
         connection = DriverManager.getConnection(jdbcUrl);
@@ -34,8 +34,8 @@ public final class GalileoDB {
         // Upsert bot_instances row
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO bot_instances (bot_name, language, status, last_heartbeat_at) " +
-                "VALUES ('jupiter', 'Java', 'online', NOW()) " +
-                "ON CONFLICT (bot_name) DO UPDATE SET status = 'online', last_heartbeat_at = NOW()")) {
+                        "VALUES ('jupiter', 'Java', 'online', NOW()) " +
+                        "ON CONFLICT (bot_name) DO UPDATE SET status = 'online', last_heartbeat_at = NOW()")) {
             ps.executeUpdate();
         }
 
@@ -45,7 +45,8 @@ public final class GalileoDB {
     /** Updates last_heartbeat_at every 30 seconds. */
     private static void startHeartbeat() {
         scheduler.scheduleAtFixedRate(() -> {
-            if (connection == null) return;
+            if (connection == null)
+                return;
             try (PreparedStatement ps = connection.prepareStatement(
                     "UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = 'jupiter'")) {
                 ps.executeUpdate();
@@ -57,10 +58,11 @@ public final class GalileoDB {
     }
 
     public static void logCommand(String commandName, String status, long latencyMs) {
-        if (connection == null) return;
+        if (connection == null)
+            return;
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO command_logs (bot_name, command_name, status, latency_ms, created_at) " +
-                "VALUES ('jupiter', ?, ?, ?, NOW())")) {
+                        "VALUES ('jupiter', ?, ?, ?, NOW())")) {
             ps.setString(1, commandName);
             ps.setString(2, status);
             ps.setLong(3, latencyMs);
