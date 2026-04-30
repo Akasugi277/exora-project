@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  saturn-lint:
+    name: Saturn TypeScript lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/bots/saturn
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/bots/saturn/package-lock.json
+      - run: npm install
+      - run: npm run lint
+
+  uranus-check:
+    name: Uranus Rust check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/bots/uranus
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/bots/uranus
+      - run: cargo fmt --check
+      - run: cargo clippy -- -D warnings
+
+  jupiter-build:
+    name: Jupiter Gradle build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/bots/jupiter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v3
+      - run: gradle shadowJar --no-daemon
+
+  neptune-build:
+    name: Neptune Haskell build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/bots/neptune
+    steps:
+      - uses: actions/checkout@v4
+      - uses: haskell-actions/setup@v2
+        with:
+          ghc-version: 9.6.3
+          enable-stack: true
+          stack-version: latest
+      - uses: actions/cache@v4
+        with:
+          path: ~/.stack
+          key: ${{ runner.os }}-stack-${{ hashFiles('apps/bots/neptune/stack.yaml') }}
+      - run: stack build --no-terminal
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

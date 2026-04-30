@@ -5,7 +5,8 @@ import reactor.core.publisher.Mono;
 
 public final class PingCommand {
 
-    private PingCommand() {}
+    private PingCommand() {
+    }
 
     public static Mono<Void> handle(ChatInputInteractionEvent event) {
         return event.reply("\uD83E\uFA90 Pong! **Jupiter** (Java / Discord4J) is online.");

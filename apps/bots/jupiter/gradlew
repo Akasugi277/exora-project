@@ -1,0 +1,4 @@
+#!/bin/sh
+# Gradle wrapper bootstrap (requires JDK 21 + network access on first run)
+set -e
+exec java -jar "$(dirname "$0")/gradle/wrapper/gradle-wrapper.jar" "$@"
