@@ -7,13 +7,19 @@ use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tracing::{error, info, warn};
 
 // Share the PgPool through Serenity's TypeMap
 struct DbPool;
 impl TypeMapKey for DbPool {
     type Value = PgPool;
+}
+
+// Store bot start time in TypeMap for /info
+struct StartTime;
+impl TypeMapKey for StartTime {
+    type Value = std::time::Instant;
 }
 
 struct Handler;
@@ -50,39 +56,87 @@ impl EventHandler for Handler {
             Ok(_) => info!("/ping registered"),
             Err(e) => error!("Failed to register /ping: {e}"),
         }
+
+        match Command::create_global_command(
+            &ctx.http,
+            CreateCommand::new("info").description("Show Uranus bot information and uptime."),
+        )
+        .await
+        {
+            Ok(_) => info!("/info registered"),
+            Err(e) => error!("Failed to register /info: {e}"),
+        }
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::Command(command) = interaction {
-            if command.data.name == "ping" {
-                let start = Instant::now();
-                let msg = CreateInteractionResponseMessage::new()
-                    .content("\u{1FA90} Pong! **Uranus** (Rust / Serenity) is online.");
-                let response = CreateInteractionResponse::Message(msg);
-                let result = command.create_response(&ctx.http, response).await;
-                let latency_ms = start.elapsed().as_millis() as i64;
-                let status = if result.is_ok() { "ok" } else { "error" };
-
-                if let Err(e) = &result {
-                    error!("Failed to respond to /ping: {e}");
-                }
-
-                // Log to command_logs
-                let data = ctx.data.read().await;
-                if let Some(pool) = data.get::<DbPool>() {
-                    if let Err(e) = sqlx::query(
-                        "INSERT INTO command_logs \
-                           (bot_name, command_name, status, latency_ms, created_at) \
-                         VALUES ('uranus', 'ping', $1, $2, NOW())",
-                    )
-                    .bind(status)
-                    .bind(latency_ms)
-                    .execute(pool)
-                    .await
-                    {
-                        warn!("command_logs insert failed: {e}");
+            match command.data.name.as_str() {
+                "ping" => {
+                    let start = Instant::now();
+                    let msg = CreateInteractionResponseMessage::new()
+                        .content("\u{1FA90} Pong! **Uranus** (Rust / Serenity) is online.");
+                    let response = CreateInteractionResponse::Message(msg);
+                    let result = command.create_response(&ctx.http, response).await;
+                    let latency_ms = start.elapsed().as_millis() as i64;
+                    let status = if result.is_ok() { "ok" } else { "error" };
+                    if let Err(e) = &result {
+                        error!("Failed to respond to /ping: {e}");
+                    }
+                    let data = ctx.data.read().await;
+                    if let Some(pool) = data.get::<DbPool>() {
+                        if let Err(e) = sqlx::query(
+                            "INSERT INTO command_logs \
+                               (bot_name, command_name, status, latency_ms, created_at) \
+                             VALUES ('uranus', 'ping', $1, $2, NOW())",
+                        )
+                        .bind(status)
+                        .bind(latency_ms)
+                        .execute(pool)
+                        .await
+                        {
+                            warn!("command_logs insert failed: {e}");
+                        }
                     }
                 }
+                "info" => {
+                    let start = Instant::now();
+                    let uptime_str = {
+                        let data = ctx.data.read().await;
+                        let bot_start = data.get::<StartTime>().copied().unwrap_or_else(Instant::now);
+                        let secs = bot_start.elapsed().as_secs();
+                        format!("{}h {:02}m {:02}s", secs / 3600, (secs % 3600) / 60, secs % 60)
+                    };
+                    let reply = format!(
+                        "\u{1FA90} **Uranus** \u{2014} Bot Information\n\
+                         \u{2022} Language  : Rust / Serenity 0.12\n\
+                         \u{2022} Version   : 0.1.0\n\
+                         \u{2022} Uptime    : {uptime_str}"
+                    );
+                    let msg = CreateInteractionResponseMessage::new().content(reply);
+                    let response = CreateInteractionResponse::Message(msg);
+                    let result = command.create_response(&ctx.http, response).await;
+                    let latency_ms = start.elapsed().as_millis() as i64;
+                    let status = if result.is_ok() { "ok" } else { "error" };
+                    if let Err(e) = &result {
+                        error!("Failed to respond to /info: {e}");
+                    }
+                    let data = ctx.data.read().await;
+                    if let Some(pool) = data.get::<DbPool>() {
+                        if let Err(e) = sqlx::query(
+                            "INSERT INTO command_logs \
+                               (bot_name, command_name, status, latency_ms, created_at) \
+                             VALUES ('uranus', 'info', $1, $2, NOW())",
+                        )
+                        .bind(status)
+                        .bind(latency_ms)
+                        .execute(pool)
+                        .await
+                        {
+                            warn!("command_logs insert failed: {e}");
+                        }
+                    }
+                }
+                _ => {}
             }
         }
     }
@@ -142,10 +196,11 @@ async fn main() {
         .await
         .expect("Failed to create Discord client");
 
-    // Share the pool via TypeMap
+    // Share the pool and start time via TypeMap
     {
         let mut data = client.data.write().await;
         data.insert::<DbPool>(pool.clone());
+        data.insert::<StartTime>(Instant::now());
     }
 
     // Background heartbeat: update last_heartbeat_at every 30 s

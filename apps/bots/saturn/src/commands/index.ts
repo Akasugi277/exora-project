@@ -7,3 +7,4 @@ export interface Command {
 }
 
 export { pingCommand, handlePing } from './ping';
+export { infoCommand, handleInfo } from './info';

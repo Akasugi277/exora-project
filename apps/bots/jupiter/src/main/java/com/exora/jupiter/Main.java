@@ -1,5 +1,6 @@
 package com.exora.jupiter;
 
+import com.exora.jupiter.command.InfoCommand;
 import com.exora.jupiter.command.PingCommand;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
@@ -42,7 +43,7 @@ public class Main {
             return Mono.empty();
         }).subscribe();
 
-        // Register /ping as a global slash command
+        // Register global slash commands
         long appId = client.getRestClient().getApplicationId().block();
         client.getRestClient().getApplicationService()
                 .createGlobalApplicationCommand(appId,
@@ -52,58 +53,21 @@ public class Main {
                                 .build())
                 .subscribe();
 
-        // Dispatch commands
-        client.on(ChatInputInteractionEvent.class, event -> {
-            if ("ping".equals(event.getCommandName())) {
-                return PingCommand.handle(event);
-            }
-            return Mono.empty();
-        }).subscribe();
-
-        client.onDisconnect().block();
-    }
-
-    private static String requireEnv(String key) {
-        String value = System.getenv(key);
-        if (value == null || value.isBlank()) {
-            throw new IllegalStateException("Missing required environment variable: " + key);
-        }
-        return value;
-    }
-}
-
-        GatewayDiscordClient client = DiscordClientBuilder.create(token)
-                .build()
-                .login()
-                .block();
-
-        if (client == null) {
-            log.error("Discord gateway connection failed");
-            System.exit(1);
-        }
-
-        // Log ready
-        client.on(ReadyEvent.class, event -> {
-            log.info("Jupiter online as {}", event.getSelf().getTag());
-            return Mono.empty();
-        }).subscribe();
-
-        // Register /ping as a global slash command
-        long appId = client.getRestClient().getApplicationId().block();
         client.getRestClient().getApplicationService()
                 .createGlobalApplicationCommand(appId,
                         ApplicationCommandRequest.builder()
-                                .name("ping")
-                                .description("Pong! Verify that Jupiter is online.")
+                                .name("info")
+                                .description("Show Jupiter bot information and uptime.")
                                 .build())
                 .subscribe();
 
         // Dispatch commands
         client.on(ChatInputInteractionEvent.class, event -> {
-            if ("ping".equals(event.getCommandName())) {
-                return PingCommand.handle(event);
-            }
-            return Mono.empty();
+            return switch (event.getCommandName()) {
+                case "ping" -> PingCommand.handle(event);
+                case "info" -> InfoCommand.handle(event);
+                default     -> Mono.empty();
+            };
         }).subscribe();
 
         client.onDisconnect().block();
