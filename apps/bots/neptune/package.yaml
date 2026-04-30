@@ -20,3 +20,4 @@ dependencies:
   - text
   - data-default
   - dotenv
+  - time
