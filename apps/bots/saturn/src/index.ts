@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { Client, Events, GatewayIntentBits, REST, Routes } from 'discord.js';
 import { pingCommand, handlePing } from './commands/ping';
-import { upsertBotInstance, pool } from './db';
+import { upsertBotInstance, startHeartbeat, pool } from './db';
 
 const token = requireEnv('DISCORD_TOKEN_SATURN');
 
@@ -24,6 +24,9 @@ async function main(): Promise<void> {
     await upsertBotInstance('saturn', 'TypeScript').catch((e: unknown) =>
       console.error('[saturn] DB heartbeat failed:', e),
     );
+
+    startHeartbeat('saturn');
+    console.log('[saturn] Heartbeat started (30 s)');
   });
 
   client.on(Events.InteractionCreate, async (interaction) => {

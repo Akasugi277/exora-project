@@ -52,4 +52,16 @@ export async function upsertBotInstance(
   );
 }
 
+/** Sends a heartbeat UPDATE every `intervalMs` ms (default 30 s). */
+export function startHeartbeat(botName: string, intervalMs = 30_000): void {
+  setInterval(() => {
+    pool
+      .query(
+        `UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = $1`,
+        [botName],
+      )
+      .catch((e: unknown) => console.warn(`[${botName}] heartbeat failed:`, e));
+  }, intervalMs).unref(); // unref so the timer doesn't prevent clean shutdown
+}
+
 export { pool };

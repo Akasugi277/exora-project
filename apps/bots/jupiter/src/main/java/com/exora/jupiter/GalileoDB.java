@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Lightweight DB helper for Galileo (PostgreSQL).
@@ -15,6 +18,12 @@ public final class GalileoDB {
 
     private static final Logger log = LoggerFactory.getLogger(GalileoDB.class);
     private static volatile Connection connection;
+    private static final ScheduledExecutorService scheduler =
+            Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "jupiter-heartbeat");
+                t.setDaemon(true);
+                return t;
+            });
 
     private GalileoDB() {}
 
@@ -29,6 +38,22 @@ public final class GalileoDB {
                 "ON CONFLICT (bot_name) DO UPDATE SET status = 'online', last_heartbeat_at = NOW()")) {
             ps.executeUpdate();
         }
+
+        startHeartbeat();
+    }
+
+    /** Updates last_heartbeat_at every 30 seconds. */
+    private static void startHeartbeat() {
+        scheduler.scheduleAtFixedRate(() -> {
+            if (connection == null) return;
+            try (PreparedStatement ps = connection.prepareStatement(
+                    "UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = 'jupiter'")) {
+                ps.executeUpdate();
+                log.debug("[jupiter] heartbeat sent");
+            } catch (Exception e) {
+                log.warn("[jupiter] heartbeat failed: {}", e.getMessage());
+            }
+        }, 30, 30, TimeUnit.SECONDS);
     }
 
     public static void logCommand(String commandName, String status, long latencyMs) {

@@ -1,7 +1,8 @@
 module Main where
 
 import Control.Exception                (SomeException, catch)
-import Control.Monad                    (void)
+import Control.Concurrent               (forkIO, threadDelay)
+import Control.Monad                    (void, forever)
 import Data.Coerce                      (coerce)
 import Data.Default                     (def)
 import qualified Data.ByteString.Char8  as BS
@@ -32,6 +33,7 @@ main = do
 
   conn <- checkGalileo dbUrl
   upsertBotInstance conn
+  void $ forkIO $ heartbeatLoop conn
   checkRedis redisH
 
   err <- runDiscord $ def
@@ -97,6 +99,15 @@ upsertBotInstance conn = do
     \VALUES ('neptune', 'Haskell', 'online', NOW()) \
     \ON CONFLICT (bot_name) DO UPDATE SET status = 'online', last_heartbeat_at = NOW()"
     ()
+
+-- | Updates last_heartbeat_at every 30 seconds in a background thread.
+heartbeatLoop :: PG.Connection -> IO ()
+heartbeatLoop conn = forever $ do
+  threadDelay (30 * 1_000_000)
+  void (PG.execute conn
+    "UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = 'neptune'"
+    ())
+    `catch` (\(_ :: SomeException) -> pure ())
 
 logCommand :: PG.Connection -> String -> String -> Int -> IO ()
 logCommand conn cmdName status latencyMs =
