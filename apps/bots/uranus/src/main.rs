@@ -7,7 +7,7 @@ use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
-use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant};
 use tracing::{error, info, warn};
 
 // Share the PgPool through Serenity's TypeMap
