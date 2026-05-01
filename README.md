@@ -16,6 +16,35 @@ Exora Project is a monorepo for a four-bot Discord system with a shared data cor
 | Cache      | Redis 7                        | Sync cache             |
 | Dashboard  | Next.js 14 / TypeScript        | Status & observability |
 
+```mermaid
+flowchart TD
+    User(["👤 Discord User"])
+    Portal(["🌐 Discord Developer Portal"])
+
+    subgraph Bots["Exora Bots"]
+        J["🪐 Jupiter\nJava / Discord4J"]
+        S["🪐 Saturn\nTypeScript / discord.js"]
+        U["🪐 Uranus\nRust / Serenity"]
+        N["🪐 Neptune\nHaskell / discord-haskell"]
+    end
+
+    subgraph Data["Galileo Data Layer"]
+        PG[("🗄️ Galileo DB\nPostgreSQL 16")]
+        RD[("⚡ Redis 7")]
+    end
+
+    subgraph Dashboard["Dashboard"]
+        Dash["📊 Next.js Dashboard\nlocalhost:3000"]
+    end
+
+    User -->|"slash commands"| J & S & U & N
+    User -->|"OAuth2 login"| Portal
+    Portal -->|"auth callback"| Dash
+    J & S & U & N -->|"heartbeat / log"| PG
+    J & S & U & N -->|"cache"| RD
+    PG -->|"bot_instances"| Dash
+```
+
 ## Repository layout
 
 ```text
@@ -92,6 +121,35 @@ Exora Project は、4つの Discord BOT と共有データコア（Galileo）で
 | Galileo DB     | PostgreSQL 16                  | 共有データストア |
 | キャッシュ     | Redis 7                        | 同期キャッシュ   |
 | ダッシュボード | Next.js 14 / TypeScript        | ステータス監視   |
+
+```mermaid
+flowchart TD
+    User(["👤 Discord ユーザー"])
+    Portal(["🌐 Discord Developer Portal"])
+
+    subgraph Bots["Exora BOT 群"]
+        J["🪐 Jupiter\nJava / Discord4J"]
+        S["🪐 Saturn\nTypeScript / discord.js"]
+        U["🪐 Uranus\nRust / Serenity"]
+        N["🪐 Neptune\nHaskell / discord-haskell"]
+    end
+
+    subgraph Data["Galileo データ層"]
+        PG[("🗄️ Galileo DB\nPostgreSQL 16")]
+        RD[("⚡ Redis 7")]
+    end
+
+    subgraph Dashboard["ダッシュボード"]
+        Dash["📊 Next.js Dashboard\nlocalhost:3000"]
+    end
+
+    User -->|"スラッシュコマンド"| J & S & U & N
+    User -->|"OAuth2 ログイン"| Portal
+    Portal -->|"認証コールバック"| Dash
+    J & S & U & N -->|"ハートビート / ログ"| PG
+    J & S & U & N -->|"キャッシュ"| RD
+    PG -->|"bot_instances"| Dash
+```
 
 ## クイックスタート（Docker）
 
