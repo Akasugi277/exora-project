@@ -48,7 +48,7 @@ export default async function RootLayout({
             </main>
           </div>
         ) : (
-          // Not logged in — middleware handles redirect, this is a safety fallback
+          // Not logged in — render without sidebar (public pages)
           <main className="min-h-screen">{children}</main>
         )}
       </body>
