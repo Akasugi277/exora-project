@@ -1,7 +1,6 @@
-import type { CSSProperties } from 'react';
 import type { BotStatus } from './api/status/route';
-import { getSessionUser } from '@/lib/session';
-import type { SessionUser } from '@/lib/session';
+import BotStatusCard from '@/components/BotStatusCard';
+import ComingSoon from '@/components/ComingSoon';
 
 // ─── i18n ────────────────────────────────────────────────────────────────────
 
@@ -9,32 +8,32 @@ type Lang = 'ja' | 'en';
 
 const T = {
   ja: {
-    title: 'Exora シリーズ',
-    subtitle: 'BOT ステータス ダッシュボード',
+    title: 'ダッシュボード',
+    subtitle: '全 BOT の稼働状況をリアルタイムで確認できます。',
+    statusSection: 'BOT 稼働状態',
+    leaderboardTitle: 'ユーザーリーダーボード',
+    leaderboardDesc: '各 BOT に紐づけられたユーザーのランキングを表示予定です。',
+    boardTitle: 'サーバー掲示板',
+    boardDesc: 'BOT が導入されているサーバーの一覧を掲示板形式で表示予定です。',
     unit: 'ユニット',
-    footer: 'Galileo DB (PostgreSQL) · Redis',
     online: 'オンライン',
-    langToggle: 'English',
-    langToggleHref: '?lang=en',
     heartbeat: '最終ハートビート',
     never: 'なし',
-    login: 'Discord でログイン',
-    logout: 'ログアウト',
-    loggedInAs: 'ログイン中',
+    footer: 'Galileo DB (PostgreSQL 16) · Redis 7',
   },
   en: {
-    title: 'Exora Series',
-    subtitle: 'Bot Status Dashboard',
+    title: 'Dashboard',
+    subtitle: 'Monitor all bots in real time.',
+    statusSection: 'Bot Status',
+    leaderboardTitle: 'User Leaderboard',
+    leaderboardDesc: 'Per-bot user rankings will be shown here.',
+    boardTitle: 'Server Board',
+    boardDesc: 'A bulletin board listing servers where each bot is installed.',
     unit: 'Unit',
-    footer: 'Galileo DB (PostgreSQL) · Redis',
     online: 'online',
-    langToggle: '日本語',
-    langToggleHref: '?lang=ja',
     heartbeat: 'Last heartbeat',
     never: 'never',
-    login: 'Login with Discord',
-    logout: 'Logout',
-    loggedInAs: 'Logged in as',
+    footer: 'Galileo DB (PostgreSQL 16) · Redis 7',
   },
 } as const;
 
@@ -68,98 +67,6 @@ async function getBotStatuses(): Promise<BotStatus[]> {
   }
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
-const card: CSSProperties = {
-  border: '1px solid #30363d',
-  borderRadius: '0.75rem',
-  padding: '1.25rem',
-};
-
-// ─── Components ───────────────────────────────────────────────────────────────
-
-function avatarUrl(user: SessionUser): string {
-  if (!user.avatar) {
-    return `https://cdn.discordapp.com/embed/avatars/${Number(user.discriminator) % 5}.png`;
-  }
-  return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`;
-}
-
-function UserArea({ user, t, lang }: { user: SessionUser | null; t: (typeof T)[Lang]; lang: Lang }) {
-  if (!user) {
-    return (
-      <a
-        href="/api/auth/login"
-        style={{
-          fontSize: '0.82rem',
-          background: '#5865F2',
-          color: '#fff',
-          textDecoration: 'none',
-          borderRadius: '0.4rem',
-          padding: '0.35rem 0.9rem',
-          whiteSpace: 'nowrap',
-          fontWeight: 600,
-        }}
-      >
-        {t.login}
-      </a>
-    );
-  }
-  const displayName = user.global_name ?? user.username;
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={avatarUrl(user)}
-        alt={displayName}
-        width={32}
-        height={32}
-        style={{ borderRadius: '50%' }}
-      />
-      <span style={{ fontSize: '0.82rem', color: '#e6edf3' }}>
-        {t.loggedInAs}: <strong>{displayName}</strong>
-      </span>
-      <a
-        href={`/api/auth/logout`}
-        style={{
-          fontSize: '0.75rem',
-          color: '#8b949e',
-          textDecoration: 'none',
-          border: '1px solid #30363d',
-          borderRadius: '0.4rem',
-          padding: '0.2rem 0.6rem',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {t.logout}
-      </a>
-    </div>
-  );
-}
-
-function statusBadge(status: string, t: (typeof T)[Lang]) {
-  const online = status === 'online';
-  return (
-    <span
-      style={{
-        fontSize: '0.7rem',
-        background: online ? '#1a4731' : '#2d1e1e',
-        color: online ? '#3fb950' : '#f85149',
-        padding: '0.2rem 0.6rem',
-        borderRadius: '999px',
-      }}
-    >
-      {online ? t.online : status}
-    </span>
-  );
-}
-
-function formatHeartbeat(ts: string | null, t: (typeof T)[Lang]): string {
-  if (!ts) return t.never;
-  const d = new Date(ts);
-  return isNaN(d.getTime()) ? t.never : d.toLocaleString();
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function HomePage({
@@ -170,84 +77,50 @@ export default async function HomePage({
   const params = await searchParams;
   const lang: Lang = params.lang === 'en' ? 'en' : 'ja';
   const t = T[lang];
-  const [bots, user] = await Promise.all([getBotStatuses(), getSessionUser()]);
+  const bots = await getBotStatuses();
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: '#0d1117',
-        color: '#e6edf3',
-        padding: '2.5rem',
-      }}
-    >
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', margin: '0 0 0.25rem' }}>🪐 {t.title}</h1>
-          <p style={{ color: '#8b949e', margin: '0 0 2rem' }}>{t.subtitle}</p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <UserArea user={user} t={t} lang={lang} />
-          <a
-            href={t.langToggleHref}
-            style={{
-              fontSize: '0.8rem',
-              color: '#58a6ff',
-              textDecoration: 'none',
-              border: '1px solid #30363d',
-              borderRadius: '0.4rem',
-              padding: '0.3rem 0.75rem',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {t.langToggle}
-          </a>
-        </div>
+    <div className="px-8 py-8 max-w-5xl">
+      {/* Page header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-text-base">{t.title}</h1>
+        <p className="text-sm text-text-muted mt-1">{t.subtitle}</p>
       </div>
 
-      {/* Bot cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
-          gap: '1rem',
-        }}
-      >
-        {bots.map((bot) => {
-          const meta = BOT_META[bot.bot_name] ?? {
-            num: 0,
-            lang: bot.language,
-            color: '#8b949e',
-          };
-          return (
-            <div key={bot.bot_name} style={card}>
-              <p style={{ color: '#8b949e', fontSize: '0.75rem', margin: '0 0 0.25rem' }}>
-                {t.unit} {meta.num} · {meta.lang}
-              </p>
-              <h2
-                style={{
-                  margin: '0 0 0.75rem',
-                  fontSize: '1.2rem',
-                  color: meta.color,
-                  textTransform: 'capitalize',
-                }}
-              >
-                {bot.bot_name}
-              </h2>
-              {statusBadge(bot.status, t)}
-              <p style={{ color: '#484f58', fontSize: '0.68rem', margin: '0.6rem 0 0' }}>
-                {t.heartbeat}: {formatHeartbeat(bot.last_heartbeat_at, t)}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+      {/* BOT Status section */}
+      <section>
+        <h2 className="text-base font-semibold text-text-base mb-4 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          {t.statusSection}
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {bots.map((bot) => {
+            const meta = BOT_META[bot.bot_name] ?? { num: 0, lang: bot.language, color: '#8b949e' };
+            return (
+              <BotStatusCard
+                key={bot.bot_name}
+                name={bot.bot_name}
+                language={meta.lang}
+                status={bot.status}
+                lastHeartbeat={bot.last_heartbeat_at}
+                color={meta.color}
+                num={meta.num}
+                lang={lang}
+                labels={{ online: t.online, heartbeat: t.heartbeat, never: t.never, unit: t.unit }}
+              />
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Coming Soon: Leaderboard */}
+      <ComingSoon title={t.leaderboardTitle} description={t.leaderboardDesc} />
+
+      {/* Coming Soon: Server Board */}
+      <ComingSoon title={t.boardTitle} description={t.boardDesc} />
 
       {/* Footer */}
-      <p style={{ marginTop: '2.5rem', fontSize: '0.72rem', color: '#484f58' }}>
-        {t.footer}
-      </p>
-    </main>
+      <p className="mt-10 text-xs text-text-muted">{t.footer}</p>
+    </div>
   );
 }
