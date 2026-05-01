@@ -1,4 +1,7 @@
+import type { CSSProperties } from 'react';
 import type { BotStatus } from './api/status/route';
+import { getSessionUser } from '@/lib/session';
+import type { SessionUser } from '@/lib/session';
 
 // ─── i18n ────────────────────────────────────────────────────────────────────
 
@@ -15,6 +18,9 @@ const T = {
     langToggleHref: '?lang=en',
     heartbeat: '最終ハートビート',
     never: 'なし',
+    login: 'Discord でログイン',
+    logout: 'ログアウト',
+    loggedInAs: 'ログイン中',
   },
   en: {
     title: 'Exora Series',
@@ -26,6 +32,9 @@ const T = {
     langToggleHref: '?lang=ja',
     heartbeat: 'Last heartbeat',
     never: 'never',
+    login: 'Login with Discord',
+    logout: 'Logout',
+    loggedInAs: 'Logged in as',
   },
 } as const;
 
@@ -61,13 +70,72 @@ async function getBotStatuses(): Promise<BotStatus[]> {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const card: React.CSSProperties = {
+const card: CSSProperties = {
   border: '1px solid #30363d',
   borderRadius: '0.75rem',
   padding: '1.25rem',
 };
 
 // ─── Components ───────────────────────────────────────────────────────────────
+
+function avatarUrl(user: SessionUser): string {
+  if (!user.avatar) {
+    return `https://cdn.discordapp.com/embed/avatars/${Number(user.discriminator) % 5}.png`;
+  }
+  return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`;
+}
+
+function UserArea({ user, t, lang }: { user: SessionUser | null; t: (typeof T)[Lang]; lang: Lang }) {
+  if (!user) {
+    return (
+      <a
+        href="/api/auth/login"
+        style={{
+          fontSize: '0.82rem',
+          background: '#5865F2',
+          color: '#fff',
+          textDecoration: 'none',
+          borderRadius: '0.4rem',
+          padding: '0.35rem 0.9rem',
+          whiteSpace: 'nowrap',
+          fontWeight: 600,
+        }}
+      >
+        {t.login}
+      </a>
+    );
+  }
+  const displayName = user.global_name ?? user.username;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={avatarUrl(user)}
+        alt={displayName}
+        width={32}
+        height={32}
+        style={{ borderRadius: '50%' }}
+      />
+      <span style={{ fontSize: '0.82rem', color: '#e6edf3' }}>
+        {t.loggedInAs}: <strong>{displayName}</strong>
+      </span>
+      <a
+        href={`/api/auth/logout`}
+        style={{
+          fontSize: '0.75rem',
+          color: '#8b949e',
+          textDecoration: 'none',
+          border: '1px solid #30363d',
+          borderRadius: '0.4rem',
+          padding: '0.2rem 0.6rem',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {t.logout}
+      </a>
+    </div>
+  );
+}
 
 function statusBadge(status: string, t: (typeof T)[Lang]) {
   const online = status === 'online';
@@ -102,7 +170,7 @@ export default async function HomePage({
   const params = await searchParams;
   const lang: Lang = params.lang === 'en' ? 'en' : 'ja';
   const t = T[lang];
-  const bots = await getBotStatuses();
+  const [bots, user] = await Promise.all([getBotStatuses(), getSessionUser()]);
 
   return (
     <main
@@ -114,25 +182,28 @@ export default async function HomePage({
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.8rem', margin: '0 0 0.25rem' }}>🪐 {t.title}</h1>
           <p style={{ color: '#8b949e', margin: '0 0 2rem' }}>{t.subtitle}</p>
         </div>
-        <a
-          href={t.langToggleHref}
-          style={{
-            fontSize: '0.8rem',
-            color: '#58a6ff',
-            textDecoration: 'none',
-            border: '1px solid #30363d',
-            borderRadius: '0.4rem',
-            padding: '0.3rem 0.75rem',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {t.langToggle}
-        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <UserArea user={user} t={t} lang={lang} />
+          <a
+            href={t.langToggleHref}
+            style={{
+              fontSize: '0.8rem',
+              color: '#58a6ff',
+              textDecoration: 'none',
+              border: '1px solid #30363d',
+              borderRadius: '0.4rem',
+              padding: '0.3rem 0.75rem',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {t.langToggle}
+          </a>
+        </div>
       </div>
 
       {/* Bot cards */}
