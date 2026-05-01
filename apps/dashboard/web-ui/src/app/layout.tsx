@@ -38,19 +38,14 @@ export default async function RootLayout({
   return (
     <html lang="ja">
       <body className="bg-surface text-text-base antialiased">
-        {sidebarUser ? (
-          <div className="flex min-h-screen">
-            <Suspense>
-              <Sidebar user={sidebarUser} />
-            </Suspense>
-            <main className="flex-1 ml-56 min-h-screen overflow-y-auto">
-              {children}
-            </main>
-          </div>
-        ) : (
-          // Not logged in — render without sidebar (public pages)
-          <main className="min-h-screen">{children}</main>
-        )}
+        <div className="flex min-h-screen">
+          <Suspense>
+            <Sidebar user={sidebarUser} />
+          </Suspense>
+          <main className="flex-1 ml-56 min-h-screen overflow-y-auto">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );

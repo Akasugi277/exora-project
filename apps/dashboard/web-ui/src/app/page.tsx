@@ -1,6 +1,4 @@
 import type { BotStatus } from './api/status/route';
-import { getSessionUser } from '@/lib/session';
-import type { SessionUser } from '@/lib/session';
 import BotStatusCard from '@/components/BotStatusCard';
 import ComingSoon from '@/components/ComingSoon';
 
@@ -89,34 +87,10 @@ export default async function HomePage({
   const params = await searchParams;
   const lang: Lang = params.lang === 'en' ? 'en' : 'ja';
   const t = T[lang];
-  const [bots, user] = await Promise.all([getBotStatuses(), getSessionUser()]);
+  const bots = await getBotStatuses();
 
   return (
     <div className="px-8 py-8 max-w-5xl">
-      {/* Top navbar — shown only when not logged in (no sidebar) */}
-      {!user && (
-        <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🪐</span>
-            <span className="font-bold text-lg text-text-base">Exora</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <a
-              href={t.langToggleHref}
-              className="text-xs text-accent-blue border border-border rounded px-3 py-1.5 hover:bg-border/40 transition-colors"
-            >
-              {t.langToggle}
-            </a>
-            <a
-              href="/api/auth/login"
-              className="text-sm font-semibold bg-[#5865F2] text-white px-4 py-1.5 rounded-lg hover:bg-[#4752c4] transition-colors"
-            >
-              {t.login}
-            </a>
-          </div>
-        </div>
-      )}
-
       {/* Page header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-text-base">{t.title}</h1>
