@@ -8,13 +8,26 @@ interface DiscordTokenResponse {
   scope: string;
 }
 
+function appUrl(path: string): URL {
+  const fallback = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
+  const redirect = process.env.DISCORD_REDIRECT_URI;
+  if (redirect) {
+    try {
+      return new URL(path, new URL(redirect).origin);
+    } catch {
+      // Fall through to fallback.
+    }
+  }
+  return new URL(path, fallback);
+}
+
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code');
   const error = req.nextUrl.searchParams.get('error');
 
   // User denied access
   if (error || !code) {
-    return NextResponse.redirect(new URL('/?error=access_denied', req.url));
+    return NextResponse.redirect(appUrl('/?error=access_denied'));
   }
 
   const clientId = process.env.DISCORD_CLIENT_ID;
@@ -22,7 +35,7 @@ export async function GET(req: NextRequest) {
   const redirectUri = process.env.DISCORD_REDIRECT_URI;
 
   if (!clientId || !clientSecret || !redirectUri) {
-    return NextResponse.redirect(new URL('/?error=server_misconfiguration', req.url));
+    return NextResponse.redirect(appUrl('/?error=server_misconfiguration'));
   }
 
   // Exchange authorization code for access token
@@ -40,7 +53,7 @@ export async function GET(req: NextRequest) {
 
   if (!tokenRes.ok) {
     console.error('[auth/callback] token exchange failed:', await tokenRes.text());
-    return NextResponse.redirect(new URL('/?error=token_exchange_failed', req.url));
+    return NextResponse.redirect(appUrl('/?error=token_exchange_failed'));
   }
 
   const tokenData = (await tokenRes.json()) as DiscordTokenResponse;
@@ -51,7 +64,7 @@ export async function GET(req: NextRequest) {
   });
 
   if (!userRes.ok) {
-    return NextResponse.redirect(new URL('/?error=user_fetch_failed', req.url));
+    return NextResponse.redirect(appUrl('/?error=user_fetch_failed'));
   }
 
   const discordUser = (await userRes.json()) as SessionUser;
@@ -64,7 +77,7 @@ export async function GET(req: NextRequest) {
     global_name: discordUser.global_name,
   });
 
-  const res = NextResponse.redirect(new URL('/', req.url));
+  const res = NextResponse.redirect(appUrl('/'));
   res.cookies.set(sessionCookieOptions(sessionValue));
   return res;
 }
