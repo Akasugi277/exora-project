@@ -87,12 +87,14 @@ public final class GalileoDB {
                 String password = parts.length > 1 ? parts[1] : "";
 
                 if (!user.isBlank() && (query == null || !query.contains("user="))) {
-                    if (!queryBuilder.isEmpty()) queryBuilder.append('&');
+                    if (!queryBuilder.isEmpty())
+                        queryBuilder.append('&');
                     queryBuilder.append("user=")
                             .append(URLEncoder.encode(user, StandardCharsets.UTF_8));
                 }
                 if (!password.isBlank() && (query == null || !query.contains("password="))) {
-                    if (!queryBuilder.isEmpty()) queryBuilder.append('&');
+                    if (!queryBuilder.isEmpty())
+                        queryBuilder.append('&');
                     queryBuilder.append("password=")
                             .append(URLEncoder.encode(password, StandardCharsets.UTF_8));
                 }
