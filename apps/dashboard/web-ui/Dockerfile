@@ -1,7 +1,7 @@
 # ----- Build stage -----
 FROM node:20-alpine AS build
 WORKDIR /app
-COPY package*.json tsconfig.json next.config.ts ./
+COPY package*.json tsconfig.json next.config.mjs ./
 RUN npm install
 COPY src ./src
 RUN npm run build

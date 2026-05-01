@@ -5,10 +5,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY stack.yaml package.yaml ./
-RUN stack setup --no-terminal
-RUN stack build --only-dependencies --no-terminal
+RUN stack setup --install-ghc --no-terminal
+RUN stack build --system-ghc --only-dependencies --no-terminal
 COPY app ./app
-RUN stack build --no-terminal --copy-bins --local-bin-path /app/bin
+RUN stack build --system-ghc --no-terminal --copy-bins --local-bin-path /app/bin
 
 # ----- Runtime stage -----
 FROM debian:bookworm-slim

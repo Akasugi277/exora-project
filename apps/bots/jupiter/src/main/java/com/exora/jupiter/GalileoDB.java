@@ -3,6 +3,9 @@ package com.exora.jupiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -28,7 +31,9 @@ public final class GalileoDB {
     }
 
     public static void init(String jdbcUrl) throws Exception {
-        connection = DriverManager.getConnection(jdbcUrl);
+        Class.forName("org.postgresql.Driver");
+        String normalizedUrl = normalizeJdbcUrl(jdbcUrl);
+        connection = DriverManager.getConnection(normalizedUrl);
         log.info("[jupiter] Galileo DB connected: {}", connection.getMetaData().getURL());
 
         // Upsert bot_instances row
@@ -40,6 +45,67 @@ public final class GalileoDB {
         }
 
         startHeartbeat();
+    }
+
+    private static String normalizeJdbcUrl(String rawUrl) {
+        if (rawUrl.startsWith("jdbc:")) {
+            return rawUrl;
+        }
+        String pgUrl = rawUrl;
+        if (pgUrl.startsWith("postgres://")) {
+            pgUrl = "postgresql://" + pgUrl.substring("postgres://".length());
+        }
+        if (!pgUrl.startsWith("postgresql://")) {
+            return rawUrl;
+        }
+
+        try {
+            URI uri = URI.create(pgUrl);
+            String host = uri.getHost();
+            if (host == null || host.isBlank()) {
+                return "jdbc:" + pgUrl;
+            }
+
+            StringBuilder jdbc = new StringBuilder("jdbc:postgresql://").append(host);
+            if (uri.getPort() > 0) {
+                jdbc.append(':').append(uri.getPort());
+            }
+
+            String path = uri.getPath();
+            if (path == null || path.isBlank()) {
+                path = "/postgres";
+            }
+            jdbc.append(path);
+
+            String query = uri.getQuery();
+            StringBuilder queryBuilder = new StringBuilder(query == null ? "" : query);
+
+            String userInfo = uri.getUserInfo();
+            if (userInfo != null && !userInfo.isBlank()) {
+                String[] parts = userInfo.split(":", 2);
+                String user = parts.length > 0 ? parts[0] : "";
+                String password = parts.length > 1 ? parts[1] : "";
+
+                if (!user.isBlank() && (query == null || !query.contains("user="))) {
+                    if (!queryBuilder.isEmpty()) queryBuilder.append('&');
+                    queryBuilder.append("user=")
+                            .append(URLEncoder.encode(user, StandardCharsets.UTF_8));
+                }
+                if (!password.isBlank() && (query == null || !query.contains("password="))) {
+                    if (!queryBuilder.isEmpty()) queryBuilder.append('&');
+                    queryBuilder.append("password=")
+                            .append(URLEncoder.encode(password, StandardCharsets.UTF_8));
+                }
+            }
+
+            if (!queryBuilder.isEmpty()) {
+                jdbc.append('?').append(queryBuilder);
+            }
+
+            return jdbc.toString();
+        } catch (Exception ignored) {
+            return "jdbc:" + pgUrl;
+        }
     }
 
     /** Updates last_heartbeat_at every 30 seconds. */
