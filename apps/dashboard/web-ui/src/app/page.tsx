@@ -1,13 +1,41 @@
 import type { BotStatus } from './api/status/route';
 
-const BOT_META: Record<
-  string,
-  { num: number; lang: string; color: string }
-> = {
-  jupiter: { num: 1, lang: 'Java / Discord4J',           color: '#d97706' },
-  saturn:  { num: 2, lang: 'TypeScript / discord.js',    color: '#a78bfa' },
-  uranus:  { num: 3, lang: 'Rust / Serenity',            color: '#67e8f9' },
-  neptune: { num: 4, lang: 'Haskell / discord-haskell',  color: '#34d399' },
+// ─── i18n ────────────────────────────────────────────────────────────────────
+
+type Lang = 'ja' | 'en';
+
+const T = {
+  ja: {
+    title: 'Exora シリーズ',
+    subtitle: 'BOT ステータス ダッシュボード',
+    unit: 'ユニット',
+    footer: 'Galileo DB (PostgreSQL) · Redis',
+    online: 'オンライン',
+    langToggle: 'English',
+    langToggleHref: '?lang=en',
+    heartbeat: '最終ハートビート',
+    never: 'なし',
+  },
+  en: {
+    title: 'Exora Series',
+    subtitle: 'Bot Status Dashboard',
+    unit: 'Unit',
+    footer: 'Galileo DB (PostgreSQL) · Redis',
+    online: 'online',
+    langToggle: '日本語',
+    langToggleHref: '?lang=ja',
+    heartbeat: 'Last heartbeat',
+    never: 'never',
+  },
+} as const;
+
+// ─── Bot metadata ─────────────────────────────────────────────────────────────
+
+const BOT_META: Record<string, { num: number; lang: string; color: string }> = {
+  jupiter: { num: 1, lang: 'Java / Discord4J',          color: '#d97706' },
+  saturn:  { num: 2, lang: 'TypeScript / discord.js',   color: '#a78bfa' },
+  uranus:  { num: 3, lang: 'Rust / Serenity',           color: '#67e8f9' },
+  neptune: { num: 4, lang: 'Haskell / discord-haskell', color: '#34d399' },
 };
 
 const FALLBACK: BotStatus[] = Object.entries(BOT_META).map(([name]) => ({
@@ -31,13 +59,17 @@ async function getBotStatuses(): Promise<BotStatus[]> {
   }
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const card: React.CSSProperties = {
   border: '1px solid #30363d',
   borderRadius: '0.75rem',
   padding: '1.25rem',
 };
 
-function statusBadge(status: string) {
+// ─── Components ───────────────────────────────────────────────────────────────
+
+function statusBadge(status: string, t: (typeof T)[Lang]) {
   const online = status === 'online';
   return (
     <span
@@ -49,12 +81,27 @@ function statusBadge(status: string) {
         borderRadius: '999px',
       }}
     >
-      {online ? 'online' : status}
+      {online ? t.online : status}
     </span>
   );
 }
 
-export default async function HomePage() {
+function formatHeartbeat(ts: string | null, t: (typeof T)[Lang]): string {
+  if (!ts) return t.never;
+  const d = new Date(ts);
+  return isNaN(d.getTime()) ? t.never : d.toLocaleString();
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const params = await searchParams;
+  const lang: Lang = params.lang === 'en' ? 'en' : 'ja';
+  const t = T[lang];
   const bots = await getBotStatuses();
 
   return (
@@ -66,15 +113,33 @@ export default async function HomePage() {
         padding: '2.5rem',
       }}
     >
-      <h1 style={{ fontSize: '1.8rem', margin: '0 0 0.25rem' }}>🪐 Exora Series</h1>
-      <p style={{ color: '#8b949e', margin: '0 0 2rem' }}>
-        Bot Status Dashboard
-      </p>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 style={{ fontSize: '1.8rem', margin: '0 0 0.25rem' }}>🪐 {t.title}</h1>
+          <p style={{ color: '#8b949e', margin: '0 0 2rem' }}>{t.subtitle}</p>
+        </div>
+        <a
+          href={t.langToggleHref}
+          style={{
+            fontSize: '0.8rem',
+            color: '#58a6ff',
+            textDecoration: 'none',
+            border: '1px solid #30363d',
+            borderRadius: '0.4rem',
+            padding: '0.3rem 0.75rem',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {t.langToggle}
+        </a>
+      </div>
 
+      {/* Bot cards */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
           gap: '1rem',
         }}
       >
@@ -87,7 +152,7 @@ export default async function HomePage() {
           return (
             <div key={bot.bot_name} style={card}>
               <p style={{ color: '#8b949e', fontSize: '0.75rem', margin: '0 0 0.25rem' }}>
-                Unit {meta.num} · {meta.lang}
+                {t.unit} {meta.num} · {meta.lang}
               </p>
               <h2
                 style={{
@@ -99,14 +164,18 @@ export default async function HomePage() {
               >
                 {bot.bot_name}
               </h2>
-              {statusBadge(bot.status)}
+              {statusBadge(bot.status, t)}
+              <p style={{ color: '#484f58', fontSize: '0.68rem', margin: '0.6rem 0 0' }}>
+                {t.heartbeat}: {formatHeartbeat(bot.last_heartbeat_at, t)}
+              </p>
             </div>
           );
         })}
       </div>
 
+      {/* Footer */}
       <p style={{ marginTop: '2.5rem', fontSize: '0.72rem', color: '#484f58' }}>
-        Galileo DB (PostgreSQL) · Redis
+        {t.footer}
       </p>
     </main>
   );
