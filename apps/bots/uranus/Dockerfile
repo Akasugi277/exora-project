@@ -1,5 +1,5 @@
 # ----- Build stage -----
-FROM rust:1.78-slim-bookworm AS build
+FROM rust:1-slim-bookworm AS build
 RUN apt-get update && \
     apt-get install -y pkg-config libssl-dev libpq-dev && \
     rm -rf /var/lib/apt/lists/*

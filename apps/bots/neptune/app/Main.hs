@@ -1,15 +1,24 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main where
 
 import Control.Exception                (SomeException, catch)
 import Control.Concurrent               (forkIO, threadDelay)
 import Control.Monad                    (void, forever)
-import Data.Coerce                      (coerce)
+import Control.Monad.IO.Class           (liftIO)
 import Data.Default                     (def)
 import qualified Data.ByteString.Char8  as BS
 import qualified Data.Text              as T
 import Data.Time.Clock                  (diffUTCTime, getCurrentTime, UTCTime)
 import Discord
 import Discord.Types
+import Discord.Internal.Types.Interactions
+                                        ( Interaction(..)
+                                        , ApplicationCommandData(..)
+                                        , InteractionResponse(..)
+                                        , InteractionResponseMessage(..)
+                                        )
+import Discord.Internal.Types.ApplicationCommands (createChatInput)
 import qualified Discord.Requests       as R
 import qualified Database.PostgreSQL.Simple as PG
 import qualified Database.Redis         as Redis
@@ -48,45 +57,39 @@ main = do
 -- ---------------------------------------------------------------------------
 
 handleEvent :: PG.Connection -> UTCTime -> Event -> DiscordHandler ()
-handleEvent conn _ (Ready {}) = do
+handleEvent _ _ (Ready _ _ _ _ _ _ partialApp) = do
   liftIO $ putStrLn "[neptune] online (Haskell / discord-haskell)"
-  result <- restCall R.GetCurrentUser
-  case result of
-    Left  err -> liftIO $ hPutStrLn stderr ("[neptune] GetCurrentUser error: " <> show err)
-    Right bot -> do
-      void $ restCall $ R.CreateGlobalApplicationCommand
-        (coerce (userId bot))
-        def
-          { createApplicationCommandName        = "ping"
-          , createApplicationCommandDescription = "Pong! Verify that Neptune is online."
-          }
-      void $ restCall $ R.CreateGlobalApplicationCommand
-        (coerce (userId bot))
-        def
-          { createApplicationCommandName        = "info"
-          , createApplicationCommandDescription = "Show Neptune bot information and uptime."
-          }
+  let appId = partialApplicationID partialApp
+  case createChatInput "ping" "Pong! Verify that Neptune is online." of
+    Just cmd -> void $ restCall $ R.CreateGlobalApplicationCommand appId cmd
+    Nothing  -> pure ()
+  case createChatInput "info" "Show Neptune bot information and uptime." of
+    Just cmd -> void $ restCall $ R.CreateGlobalApplicationCommand appId cmd
+    Nothing  -> pure ()
 handleEvent conn startAt (InteractionCreate intr) = handleInteraction conn startAt intr
 handleEvent _    _       _                         = pure ()
 
 handleInteraction :: PG.Connection -> UTCTime -> Interaction -> DiscordHandler ()
-handleInteraction conn startAt intr =
-  case interactionData intr of
-    Just (ApplicationCommandData { applicationCommandDataName = "ping" }) -> do
+handleInteraction conn startAt
+    (InteractionApplicationCommand
+      { applicationCommandData = cmdData
+      , interactionId          = iid
+      , interactionToken       = tok
+      }) =
+  case applicationCommandDataName cmdData of
+    "ping" -> do
       start <- liftIO getCurrentTime
-      res   <- restCall $ R.CreateInteractionResponse
-        (interactionId    intr)
-        (interactionToken intr)
-        ( InteractionResponseChannelMessage $
-            def { interactionResponseMessageContent =
-                    Just "\x1FA90 Pong! **Neptune** (Haskell / discord-haskell) is online."
-                }
-        )
+      res   <- restCall $ R.CreateInteractionResponse iid tok
+                ( InteractionResponseChannelMessage
+                    def { interactionResponseMessageContent =
+                            Just "\x1FA90 Pong! **Neptune** (Haskell / discord-haskell) is online."
+                        }
+                )
       end <- liftIO getCurrentTime
       let latencyMs = round (diffUTCTime end start * 1000) :: Int
           status    = case res of { Right _ -> "ok"; Left _ -> "error" }
       liftIO $ logCommand conn "ping" status latencyMs
-    Just (ApplicationCommandData { applicationCommandDataName = "info" }) -> do
+    "info" -> do
       start  <- liftIO getCurrentTime
       now    <- liftIO getCurrentTime
       let totalSecs = round (diffUTCTime now startAt) :: Int
@@ -98,12 +101,10 @@ handleInteraction conn startAt intr =
                    <> "\x2022 Language  : Haskell / discord-haskell\n"
                    <> "\x2022 Version   : 0.1.0\n"
                    <> "\x2022 Uptime    : " <> uptime
-      res  <- restCall $ R.CreateInteractionResponse
-        (interactionId    intr)
-        (interactionToken intr)
-        ( InteractionResponseChannelMessage $
-            def { interactionResponseMessageContent = Just (T.pack reply) }
-        )
+      res  <- restCall $ R.CreateInteractionResponse iid tok
+                ( InteractionResponseChannelMessage
+                    def { interactionResponseMessageContent = Just (T.pack reply) }
+                )
       end <- liftIO getCurrentTime
       let latencyMs = round (diffUTCTime end start * 1000) :: Int
           status    = case res of { Right _ -> "ok"; Left _ -> "error" }
@@ -111,6 +112,7 @@ handleInteraction conn startAt intr =
     _ -> pure ()
   where
     pad n = (if n < 10 then "0" else "") <> show n
+handleInteraction _ _ _ = pure ()
 
 -- ---------------------------------------------------------------------------
 -- DB helpers
@@ -134,7 +136,7 @@ upsertBotInstance conn = do
 -- | Updates last_heartbeat_at every 30 seconds in a background thread.
 heartbeatLoop :: PG.Connection -> IO ()
 heartbeatLoop conn = forever $ do
-  threadDelay (30 * 1_000_000)
+  threadDelay (30 * 1000000)
   void (PG.execute conn
     "UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = 'neptune'"
     ())
