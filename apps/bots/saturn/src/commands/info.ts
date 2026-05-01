@@ -18,7 +18,7 @@ export async function handleInfo(
   const uptime  = `${hours}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
 
   await interaction.reply(
-    `🪐 **Saturn** — Bot Information\n` +
+    `\uD83E\uDE90 **Saturn** — Bot Information\n` +
     `• Language  : TypeScript / discord.js v14\n` +
     `• Version   : 0.1.0\n` +
     `• Uptime    : ${uptime}`,

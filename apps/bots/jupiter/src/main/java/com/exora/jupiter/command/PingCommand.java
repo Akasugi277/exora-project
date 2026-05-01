@@ -11,7 +11,7 @@ public final class PingCommand {
 
     public static Mono<Void> handle(ChatInputInteractionEvent event) {
         long start = System.currentTimeMillis();
-        return event.reply("\uD83E\uFA90 Pong! **Jupiter** (Java / Discord4J) is online.")
+        return event.reply("🪐 Pong! **Jupiter** (Java / Discord4J) is online.")
                 .doOnSuccess(v -> GalileoDB.logCommand("ping", "ok", System.currentTimeMillis() - start))
                 .doOnError(e -> GalileoDB.logCommand("ping", "error", System.currentTimeMillis() - start));
     }

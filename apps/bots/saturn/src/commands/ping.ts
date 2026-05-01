@@ -10,7 +10,7 @@ export async function handlePing(
 ): Promise<void> {
   const start = Date.now();
   await interaction.reply(
-    '\uD83E\uFA90 Pong! **Saturn** (TypeScript / discord.js) is online.',
+    '\uD83E\uDE90 Pong! **Saturn** (TypeScript / discord.js) is online.',
   );
   await logCommand({
     botName: 'saturn',
