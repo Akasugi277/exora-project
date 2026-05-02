@@ -52,15 +52,21 @@ export async function upsertBotInstance(
   );
 }
 
-/** Sends a heartbeat UPDATE every `intervalMs` ms (default 30 s). */
-export function startHeartbeat(botName: string, intervalMs = 30_000): void {
+/** Sends a heartbeat UPDATE + logs every `intervalMs` ms (default 10 s). */
+export function startHeartbeat(botName: string, intervalMs = 10_000): void {
   setInterval(() => {
     pool
       .query(
         `UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = $1`,
         [botName],
       )
-      .catch((e: unknown) => console.warn(`[${botName}] heartbeat failed:`, e));
+      .catch((e: unknown) => console.warn(`[${botName}] heartbeat update failed:`, e));
+    pool
+      .query(
+        `INSERT INTO heartbeat_logs (bot_name, logged_at) VALUES ($1, NOW())`,
+        [botName],
+      )
+      .catch((e: unknown) => console.warn(`[${botName}] heartbeat log failed:`, e));
   }, intervalMs).unref(); // unref so the timer doesn't prevent clean shutdown
 }
 

@@ -203,10 +203,10 @@ async fn main() {
         data.insert::<StartTime>(Instant::now());
     }
 
-    // Background heartbeat: update last_heartbeat_at every 30 s
+    // Background heartbeat: update last_heartbeat_at + log every 10 s
     let heartbeat_pool = pool;
     tokio::spawn(async move {
-        let mut interval = tokio::time::interval(Duration::from_secs(30));
+        let mut interval = tokio::time::interval(Duration::from_secs(10));
         interval.tick().await; // skip the immediate first tick
         loop {
             interval.tick().await;
@@ -216,7 +216,15 @@ async fn main() {
             .execute(&heartbeat_pool)
             .await
             {
-                warn!("heartbeat failed: {e}");
+                warn!("heartbeat update failed: {e}");
+            }
+            if let Err(e) = sqlx::query(
+                "INSERT INTO heartbeat_logs (bot_name, logged_at) VALUES ('uranus', NOW())",
+            )
+            .execute(&heartbeat_pool)
+            .await
+            {
+                warn!("heartbeat log failed: {e}");
             } else {
                 info!("heartbeat sent");
             }

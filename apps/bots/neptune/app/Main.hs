@@ -133,12 +133,16 @@ upsertBotInstance conn = do
     \ON CONFLICT (bot_name) DO UPDATE SET status = 'online', last_heartbeat_at = NOW()"
     ()
 
--- | Updates last_heartbeat_at every 30 seconds in a background thread.
+-- | Updates last_heartbeat_at and logs every 10 seconds in a background thread.
 heartbeatLoop :: PG.Connection -> IO ()
 heartbeatLoop conn = forever $ do
-  threadDelay (30 * 1000000)
+  threadDelay (10 * 1000000)
   void (PG.execute conn
     "UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = 'neptune'"
+    ())
+    `catch` (\(_ :: SomeException) -> pure ())
+  void (PG.execute conn
+    "INSERT INTO heartbeat_logs (bot_name, logged_at) VALUES ('neptune', NOW())"
     ())
     `catch` (\(_ :: SomeException) -> pure ())
 

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { BotStatus } from '@/app/api/status/route';
 import ComingSoon from '@/components/ComingSoon';
+import HeartbeatChart from '@/components/HeartbeatChart';
 
 // ─── Bot metadata ─────────────────────────────────────────────────────────────
 
@@ -50,6 +51,7 @@ const T = {
     online: 'オンライン',
     heartbeat: '最終ハートビート',
     never: 'なし',
+    heartbeatChart: 'ハートビート履歴',
     serversTitle: '導入サーバー一覧',
     serversDesc: 'このBOTが導入されているDiscordサーバーの一覧を表示予定です。',
     settingsTitle: '機能設定',
@@ -61,6 +63,7 @@ const T = {
     online: 'Online',
     heartbeat: 'Last heartbeat',
     never: 'never',
+    heartbeatChart: 'Heartbeat History',
     serversTitle: 'Installed Servers',
     serversDesc: 'A list of Discord servers where this bot is installed will be shown here.',
     settingsTitle: 'Feature Settings',
@@ -136,6 +139,15 @@ export default async function BotPage({
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Heartbeat chart */}
+      <div className="mb-6">
+        <HeartbeatChart
+          botName={bot}
+          accentColor={meta.color}
+          lang={lang}
+        />
       </div>
 
       {/* Coming Soon sections */}

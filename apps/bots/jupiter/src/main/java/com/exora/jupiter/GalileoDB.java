@@ -110,19 +110,25 @@ public final class GalileoDB {
         }
     }
 
-    /** Updates last_heartbeat_at every 30 seconds. */
+    /** Updates last_heartbeat_at and inserts into heartbeat_logs every 10 seconds. */
     private static void startHeartbeat() {
         scheduler.scheduleAtFixedRate(() -> {
             if (connection == null)
                 return;
-            try (PreparedStatement ps = connection.prepareStatement(
-                    "UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = 'jupiter'")) {
-                ps.executeUpdate();
+            try {
+                try (PreparedStatement ps = connection.prepareStatement(
+                        "UPDATE bot_instances SET last_heartbeat_at = NOW() WHERE bot_name = 'jupiter'")) {
+                    ps.executeUpdate();
+                }
+                try (PreparedStatement ps = connection.prepareStatement(
+                        "INSERT INTO heartbeat_logs (bot_name, logged_at) VALUES ('jupiter', NOW())")) {
+                    ps.executeUpdate();
+                }
                 log.debug("[jupiter] heartbeat sent");
             } catch (Exception e) {
                 log.warn("[jupiter] heartbeat failed: {}", e.getMessage());
             }
-        }, 30, 30, TimeUnit.SECONDS);
+        }, 10, 10, TimeUnit.SECONDS);
     }
 
     public static void logCommand(String commandName, String status, long latencyMs) {

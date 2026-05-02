@@ -1,5 +1,5 @@
 import type { BotStatus } from './api/status/route';
-import BotStatusCard from '@/components/BotStatusCard';
+import BotStatusGrid from '@/components/BotStatusGrid';
 import ComingSoon from '@/components/ComingSoon';
 
 // ─── i18n ────────────────────────────────────────────────────────────────────
@@ -103,24 +103,11 @@ export default async function HomePage({
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           {t.statusSection}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {bots.map((bot) => {
-            const meta = BOT_META[bot.bot_name] ?? { num: 0, lang: bot.language, color: '#8b949e' };
-            return (
-              <BotStatusCard
-                key={bot.bot_name}
-                name={bot.bot_name}
-                language={meta.lang}
-                status={bot.status}
-                lastHeartbeat={bot.last_heartbeat_at}
-                color={meta.color}
-                num={meta.num}
-                lang={lang}
-                labels={{ online: t.online, heartbeat: t.heartbeat, never: t.never, unit: t.unit }}
-              />
-            );
-          })}
-        </div>
+        <BotStatusGrid
+          initialBots={bots}
+          lang={lang}
+          labels={{ online: t.online, heartbeat: t.heartbeat, never: t.never, unit: t.unit }}
+        />
       </section>
 
       {/* Coming Soon: Leaderboard */}
