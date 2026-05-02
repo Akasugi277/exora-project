@@ -8,10 +8,10 @@ import BotStatusHeader from '@/components/BotStatusHeader';
 type BotKey = 'jupiter' | 'saturn' | 'uranus' | 'neptune';
 
 const BOT_FAVICONS: Record<BotKey, string> = {
-  jupiter: 'https://www.google.com/s2/favicons?domain=discord4j.com&sz=64',
-  saturn: 'https://www.google.com/s2/favicons?domain=discord.js.org&sz=64',
-  uranus: 'https://www.google.com/s2/favicons?domain=rust-lang.org&sz=64',
-  neptune: 'https://www.google.com/s2/favicons?domain=www.haskell.org&sz=64',
+  jupiter: 'https://www.google.com/s2/favicons?domain=discord4j.com&sz=128',
+  saturn: 'https://www.google.com/s2/favicons?domain=discord.js.org&sz=128',
+  uranus: 'https://www.google.com/s2/favicons?domain=rust-lang.org&sz=128',
+  neptune: 'https://www.google.com/s2/favicons?domain=www.haskell.org&sz=128',
 };
 
 const BOT_META: Record<BotKey, { num: number; language: string; color: string; accentClass: string; bgClass: string; borderClass: string }> = {

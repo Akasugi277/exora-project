@@ -20,7 +20,7 @@ const BOT_LINKS = [
     color: 'text-jupiter',
     dot: 'bg-jupiter',
     desc: 'Java / Discord4J',
-    favicon: 'https://www.google.com/s2/favicons?domain=discord4j.com&sz=64',
+    favicon: 'https://www.google.com/s2/favicons?domain=discord4j.com&sz=128',
   },
   {
     href: '/bots/saturn',
@@ -28,7 +28,7 @@ const BOT_LINKS = [
     color: 'text-saturn',
     dot: 'bg-saturn',
     desc: 'TypeScript / discord.js',
-    favicon: 'https://www.google.com/s2/favicons?domain=discord.js.org&sz=64',
+    favicon: 'https://www.google.com/s2/favicons?domain=discord.js.org&sz=128',
   },
   {
     href: '/bots/uranus',
@@ -36,7 +36,7 @@ const BOT_LINKS = [
     color: 'text-uranus',
     dot: 'bg-uranus',
     desc: 'Rust / Serenity',
-    favicon: 'https://www.google.com/s2/favicons?domain=rust-lang.org&sz=64',
+    favicon: 'https://www.google.com/s2/favicons?domain=rust-lang.org&sz=128',
   },
   {
     href: '/bots/neptune',
@@ -44,7 +44,7 @@ const BOT_LINKS = [
     color: 'text-neptune',
     dot: 'bg-neptune',
     desc: 'Haskell / discord-haskell',
-    favicon: 'https://www.google.com/s2/favicons?domain=www.haskell.org&sz=64',
+    favicon: 'https://www.google.com/s2/favicons?domain=www.haskell.org&sz=128',
   },
 ] as const;
 
