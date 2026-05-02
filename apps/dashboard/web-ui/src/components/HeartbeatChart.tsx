@@ -126,7 +126,7 @@ export default function HeartbeatChart({
   }[lang === 'ja' ? 'ja' : 'en'];
 
   return (
-    <div className="rounded-xl border border-border bg-surface-alt p-5">
+    <div className="rounded-xl border border-border bg-surface-alt p-5 relative">
       {/* header */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm font-semibold text-text-base">{label.title}</p>
@@ -146,6 +146,7 @@ export default function HeartbeatChart({
         <svg
           viewBox={`0 0 ${W} ${H + 18}`}
           className="w-full cursor-default"
+          style={{ overflow: 'visible' }}
           aria-label={label.title}
           onClick={() => setTooltip(null)}
         >
