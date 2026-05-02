@@ -8,6 +8,7 @@ interface BotStatusCardProps {
   lang: string;
   labels: {
     online: string;
+    measuring: string;
     heartbeat: string;
     never: string;
     unit: string;
@@ -29,6 +30,7 @@ const COLOR_CLASSES: Record<string, { border: string; dot: string; text: string;
 
 export default function BotStatusCard({ name, language, status, lastHeartbeat, color, num, lang, labels }: BotStatusCardProps) {
   const cls = COLOR_CLASSES[color] ?? { border: 'border-border', dot: 'bg-text-muted', text: 'text-text-muted', bg: 'bg-border/20' };
+  const loading = status === 'loading';
   const online = status === 'online';
 
   return (
@@ -45,17 +47,25 @@ export default function BotStatusCard({ name, language, status, lastHeartbeat, c
         </div>
         {/* Status badge */}
         <span className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
-          online ? 'bg-emerald-900/40 text-emerald-400' : 'bg-red-900/30 text-red-400'
+          loading
+            ? 'bg-slate-800/60 text-slate-300'
+            : online
+              ? 'bg-emerald-900/40 text-emerald-400'
+              : 'bg-red-900/30 text-red-400'
         }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
-          {online ? labels.online : status}
+          <span className={`w-1.5 h-1.5 rounded-full ${
+            loading ? 'bg-slate-300 animate-pulse' : online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
+          }`} />
+          {loading ? labels.measuring : online ? labels.online : status}
         </span>
       </div>
 
       {/* Heartbeat */}
       <div className={`rounded-lg px-3 py-2 ${cls.bg}`}>
         <p className="text-[11px] text-text-muted mb-0.5">{labels.heartbeat}</p>
-        <p className="text-xs font-mono text-text-base">{formatHeartbeat(lastHeartbeat, labels.never)}</p>
+        <p className="text-xs font-mono text-text-base">
+          {loading ? labels.measuring : formatHeartbeat(lastHeartbeat, labels.never)}
+        </p>
       </div>
 
       {/* Arrow hint */}

@@ -110,7 +110,9 @@ public final class GalileoDB {
         }
     }
 
-    /** Updates last_heartbeat_at and inserts into heartbeat_logs every 10 seconds. */
+    /**
+     * Updates last_heartbeat_at and inserts into heartbeat_logs every 10 seconds.
+     */
     private static void startHeartbeat() {
         scheduler.scheduleAtFixedRate(() -> {
             if (connection == null)

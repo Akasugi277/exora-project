@@ -16,6 +16,7 @@ interface Props {
   lang: string;
   labels: {
     online: string;
+    measuring: string;
     heartbeat: string;
     never: string;
     unit: string;
@@ -27,6 +28,7 @@ interface Props {
 export default function BotStatusGrid({ initialBots, lang, labels, pollInterval = 10_000 }: Props) {
   const [bots, setBots] = useState<BotStatus[]>(initialBots);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,12 +41,15 @@ export default function BotStatusGrid({ initialBots, lang, labels, pollInterval 
         if (!cancelled && data.bots.length > 0) {
           setBots(data.bots);
           setLastUpdated(new Date());
+          setIsInitialLoading(false);
         }
       } catch {
         // network error — keep current data
+        if (!cancelled) setIsInitialLoading(false);
       }
     }
 
+    poll();
     const id = setInterval(poll, pollInterval);
     return () => {
       cancelled = true;
@@ -62,8 +67,8 @@ export default function BotStatusGrid({ initialBots, lang, labels, pollInterval 
               key={bot.bot_name}
               name={bot.bot_name}
               language={meta.lang}
-              status={bot.status}
-              lastHeartbeat={bot.last_heartbeat_at}
+              status={isInitialLoading ? 'loading' : bot.status}
+              lastHeartbeat={isInitialLoading ? null : bot.last_heartbeat_at}
               color={meta.color}
               num={meta.num}
               lang={lang}

@@ -17,6 +17,7 @@ const T = {
     boardDesc: 'BOT が導入されているサーバーの一覧を掲示板形式で表示予定です。',
     unit: 'ユニット',
     online: 'オンライン',
+    measuring: '計測中...',
     heartbeat: '最終ハートビート',
     never: 'なし',
     footer: 'Galileo DB (PostgreSQL 16) · Redis 7',
@@ -36,6 +37,7 @@ const T = {
     boardDesc: 'A bulletin board listing servers where each bot is installed.',
     unit: 'Unit',
     online: 'online',
+    measuring: 'Measuring...',
     heartbeat: 'Last heartbeat',
     never: 'never',
     footer: 'Galileo DB (PostgreSQL 16) · Redis 7',
@@ -106,7 +108,7 @@ export default async function HomePage({
         <BotStatusGrid
           initialBots={bots}
           lang={lang}
-          labels={{ online: t.online, heartbeat: t.heartbeat, never: t.never, unit: t.unit }}
+          labels={{ online: t.online, measuring: t.measuring, heartbeat: t.heartbeat, never: t.never, unit: t.unit }}
         />
       </section>
 
