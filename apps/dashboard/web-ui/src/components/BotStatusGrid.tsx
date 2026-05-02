@@ -11,6 +11,15 @@ const BOT_META: Record<string, { num: number; lang: string; color: string }> = {
   neptune: { num: 4, lang: 'Haskell / discord-haskell', color: '#34d399' },
 };
 
+function sortBotsStable(list: BotStatus[]): BotStatus[] {
+  return [...list].sort((a, b) => {
+    const an = BOT_META[a.bot_name]?.num ?? Number.MAX_SAFE_INTEGER;
+    const bn = BOT_META[b.bot_name]?.num ?? Number.MAX_SAFE_INTEGER;
+    if (an !== bn) return an - bn;
+    return a.bot_name.localeCompare(b.bot_name);
+  });
+}
+
 interface Props {
   initialBots: BotStatus[];
   lang: string;
@@ -26,7 +35,7 @@ interface Props {
 }
 
 export default function BotStatusGrid({ initialBots, lang, labels, pollInterval = 10_000 }: Props) {
-  const [bots, setBots] = useState<BotStatus[]>(initialBots);
+  const [bots, setBots] = useState<BotStatus[]>(sortBotsStable(initialBots));
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
@@ -39,7 +48,7 @@ export default function BotStatusGrid({ initialBots, lang, labels, pollInterval 
         if (!res.ok) return;
         const data = (await res.json()) as { bots: BotStatus[] };
         if (!cancelled && data.bots.length > 0) {
-          setBots(data.bots);
+          setBots(sortBotsStable(data.bots));
           setLastUpdated(new Date());
           setIsInitialLoading(false);
         }

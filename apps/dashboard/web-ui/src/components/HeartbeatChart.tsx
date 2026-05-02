@@ -40,6 +40,7 @@ export default function HeartbeatChart({
   const [beats, setBeats] = useState<Date[]>([]);
   const [loading, setLoading] = useState(true);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
+  const [nowMs, setNowMs] = useState(Date.now());
 
   const fetch_ = useCallback(async () => {
     try {
@@ -62,8 +63,13 @@ export default function HeartbeatChart({
     return () => clearInterval(id);
   }, [fetch_, pollInterval]);
 
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
   // ── layout ──────────────────────────────────────────────────────────────────
-  const now = new Date();
+  const now = new Date(nowMs);
   const windowMs = minutes * 60 * 1000;
   const start = new Date(now.getTime() - windowMs);
 
