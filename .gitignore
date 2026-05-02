@@ -22,6 +22,7 @@ dist/
 # Java
 .gradle/
 build/
+bin/
 out/
 *.class
 !gradle/wrapper/gradle-wrapper.jar
