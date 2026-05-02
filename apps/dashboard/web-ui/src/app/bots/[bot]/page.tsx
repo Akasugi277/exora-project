@@ -7,6 +7,13 @@ import BotStatusHeader from '@/components/BotStatusHeader';
 
 type BotKey = 'jupiter' | 'saturn' | 'uranus' | 'neptune';
 
+const BOT_FAVICONS: Record<BotKey, string> = {
+  jupiter: 'https://www.google.com/s2/favicons?domain=discord4j.com&sz=64',
+  saturn: 'https://www.google.com/s2/favicons?domain=discord.js.org&sz=64',
+  uranus: 'https://www.google.com/s2/favicons?domain=rust-lang.org&sz=64',
+  neptune: 'https://www.google.com/s2/favicons?domain=www.haskell.org&sz=64',
+};
+
 const BOT_META: Record<BotKey, { num: number; language: string; color: string; accentClass: string; bgClass: string; borderClass: string }> = {
   jupiter: {
     num: 1,
@@ -92,6 +99,7 @@ export default async function BotPage({
   }
 
   const meta = BOT_META[bot as BotKey];
+  const favicon = BOT_FAVICONS[bot as BotKey];
   const lang = langParam === 'en' ? 'en' : 'ja';
   const t = T[lang];
   const displayName = bot.charAt(0).toUpperCase() + bot.slice(1);
@@ -102,7 +110,17 @@ export default async function BotPage({
       <div className={`rounded-2xl border ${meta.borderClass} ${meta.bgClass} px-7 py-6 mb-8`}>
         <p className="text-xs text-text-muted mb-1">{t.unit} #{meta.num}</p>
         <h1 className={`text-3xl font-bold mb-1 ${meta.accentClass}`}>{displayName}</h1>
-        <p className="text-sm text-text-muted">{meta.language}</p>
+        <p className="text-sm text-text-muted flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={favicon}
+            alt={`${displayName} runtime`}
+            width={16}
+            height={16}
+            className="rounded-sm shrink-0"
+          />
+          <span>{meta.language}</span>
+        </p>
 
         {/* Live status row — client-side polling, shows "measuring" on load */}
         <BotStatusHeader

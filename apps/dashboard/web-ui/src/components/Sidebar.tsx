@@ -14,10 +14,38 @@ interface SidebarProps {
 }
 
 const BOT_LINKS = [
-  { href: '/bots/jupiter', label: 'Jupiter', color: 'text-jupiter', dot: 'bg-jupiter', desc: 'Java / Discord4J' },
-  { href: '/bots/saturn',  label: 'Saturn',  color: 'text-saturn',  dot: 'bg-saturn',  desc: 'TypeScript / discord.js' },
-  { href: '/bots/uranus',  label: 'Uranus',  color: 'text-uranus',  dot: 'bg-uranus',  desc: 'Rust / Serenity' },
-  { href: '/bots/neptune', label: 'Neptune', color: 'text-neptune', dot: 'bg-neptune', desc: 'Haskell / discord-haskell' },
+  {
+    href: '/bots/jupiter',
+    label: 'Jupiter',
+    color: 'text-jupiter',
+    dot: 'bg-jupiter',
+    desc: 'Java / Discord4J',
+    favicon: 'https://www.google.com/s2/favicons?domain=discord4j.com&sz=64',
+  },
+  {
+    href: '/bots/saturn',
+    label: 'Saturn',
+    color: 'text-saturn',
+    dot: 'bg-saturn',
+    desc: 'TypeScript / discord.js',
+    favicon: 'https://www.google.com/s2/favicons?domain=discord.js.org&sz=64',
+  },
+  {
+    href: '/bots/uranus',
+    label: 'Uranus',
+    color: 'text-uranus',
+    dot: 'bg-uranus',
+    desc: 'Rust / Serenity',
+    favicon: 'https://www.google.com/s2/favicons?domain=rust-lang.org&sz=64',
+  },
+  {
+    href: '/bots/neptune',
+    label: 'Neptune',
+    color: 'text-neptune',
+    dot: 'bg-neptune',
+    desc: 'Haskell / discord-haskell',
+    favicon: 'https://www.google.com/s2/favicons?domain=www.haskell.org&sz=64',
+  },
 ] as const;
 
 const T = {
@@ -99,7 +127,14 @@ export default function Sidebar({ user }: SidebarProps) {
                 title={t.loginRequired}
                 className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-text-muted/40 cursor-not-allowed select-none"
               >
-                <span className={`w-2 h-2 rounded-full shrink-0 ${b.dot} opacity-30`} />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={b.favicon}
+                  alt={`${b.label} icon`}
+                  width={14}
+                  height={14}
+                  className="rounded-sm shrink-0 opacity-60"
+                />
                 <span className="truncate flex-1">{b.label}</span>
                 <svg className="w-3 h-3 shrink-0 opacity-50" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -117,7 +152,14 @@ export default function Sidebar({ user }: SidebarProps) {
                   : 'text-text-muted hover:text-text-base hover:bg-border/40'
               }`}
             >
-              <span className={`w-2 h-2 rounded-full shrink-0 ${b.dot}`} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={b.favicon}
+                alt={`${b.label} icon`}
+                width={14}
+                height={14}
+                className="rounded-sm shrink-0"
+              />
               <span className="truncate">{b.label}</span>
             </Link>
           );

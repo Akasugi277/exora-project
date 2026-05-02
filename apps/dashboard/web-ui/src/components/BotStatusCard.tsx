@@ -15,6 +15,13 @@ interface BotStatusCardProps {
   };
 }
 
+const BOT_FAVICONS: Record<string, string> = {
+  jupiter: 'https://www.google.com/s2/favicons?domain=discord4j.com&sz=64',
+  saturn: 'https://www.google.com/s2/favicons?domain=discord.js.org&sz=64',
+  uranus: 'https://www.google.com/s2/favicons?domain=rust-lang.org&sz=64',
+  neptune: 'https://www.google.com/s2/favicons?domain=www.haskell.org&sz=64',
+};
+
 function formatHeartbeat(ts: string | null, never: string): string {
   if (!ts) return never;
   const d = new Date(ts);
@@ -30,6 +37,7 @@ const COLOR_CLASSES: Record<string, { border: string; dot: string; text: string;
 
 export default function BotStatusCard({ name, language, status, lastHeartbeat, color, num, lang, labels }: BotStatusCardProps) {
   const cls = COLOR_CLASSES[color] ?? { border: 'border-border', dot: 'bg-text-muted', text: 'text-text-muted', bg: 'bg-border/20' };
+  const faviconUrl = BOT_FAVICONS[name.toLowerCase()];
   const loading = status === 'loading';
   const online = status === 'online';
 
@@ -43,7 +51,19 @@ export default function BotStatusCard({ name, language, status, lastHeartbeat, c
         <div>
           <p className="text-xs text-text-muted mb-0.5">Unit #{num}</p>
           <h3 className={`text-xl font-bold ${cls.text}`}>{name.charAt(0).toUpperCase() + name.slice(1)}</h3>
-          <p className="text-xs text-text-muted mt-0.5">{language}</p>
+          <p className="text-xs text-text-muted mt-0.5 flex items-center gap-1.5">
+            {faviconUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={faviconUrl}
+                alt={`${name} runtime`}
+                width={14}
+                height={14}
+                className="rounded-sm shrink-0"
+              />
+            ) : null}
+            <span>{language}</span>
+          </p>
         </div>
         {/* Status badge */}
         <span className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
