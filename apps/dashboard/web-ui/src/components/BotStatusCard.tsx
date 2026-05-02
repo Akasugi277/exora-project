@@ -8,6 +8,7 @@ interface BotStatusCardProps {
   lang: string;
   labels: {
     online: string;
+    offline: string;
     measuring: string;
     heartbeat: string;
     never: string;
@@ -76,7 +77,7 @@ export default function BotStatusCard({ name, language, status, lastHeartbeat, c
           <span className={`w-1.5 h-1.5 rounded-full ${
             loading ? 'bg-slate-300 animate-pulse' : online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
           }`} />
-          {loading ? labels.measuring : online ? labels.online : status}
+          {loading ? labels.measuring : online ? labels.online : labels.offline}
         </span>
       </div>
 

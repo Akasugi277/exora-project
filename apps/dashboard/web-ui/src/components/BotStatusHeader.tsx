@@ -12,7 +12,7 @@ interface Props {
     status: string;
     online: string;
     measuring: string;
-    offlineUnknown: string;
+    offline: string;
     heartbeat: string;
     never: string;
   };
@@ -71,7 +71,7 @@ export default function BotStatusHeader({ botName, lang, labels, pollInterval = 
             <span className={`w-2 h-2 rounded-full ${
               online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
             }`} />
-            {online ? labels.online : labels.offlineUnknown}
+            {online ? labels.online : labels.offline}
           </span>
         )}
       </div>

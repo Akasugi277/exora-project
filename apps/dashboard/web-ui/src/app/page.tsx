@@ -17,6 +17,7 @@ const T = {
     boardDesc: 'BOT が導入されているサーバーの一覧を掲示板形式で表示予定です。',
     unit: 'ユニット',
     online: 'オンライン',
+    offline: 'オフライン',
     measuring: '計測中...',
     heartbeat: '最終ハートビート',
     never: 'なし',
@@ -37,6 +38,7 @@ const T = {
     boardDesc: 'A bulletin board listing servers where each bot is installed.',
     unit: 'Unit',
     online: 'online',
+    offline: 'offline',
     measuring: 'Measuring...',
     heartbeat: 'Last heartbeat',
     never: 'never',
@@ -61,7 +63,7 @@ const BOT_META: Record<string, { num: number; lang: string; color: string }> = {
 const FALLBACK: BotStatus[] = Object.entries(BOT_META).map(([name]) => ({
   bot_name: name,
   language: BOT_META[name].lang,
-  status: 'unknown',
+  status: 'offline',
   last_heartbeat_at: null,
 }));
 
@@ -108,7 +110,7 @@ export default async function HomePage({
         <BotStatusGrid
           initialBots={bots}
           lang={lang}
-          labels={{ online: t.online, measuring: t.measuring, heartbeat: t.heartbeat, never: t.never, unit: t.unit }}
+          labels={{ online: t.online, offline: t.offline, measuring: t.measuring, heartbeat: t.heartbeat, never: t.never, unit: t.unit }}
         />
       </section>
 

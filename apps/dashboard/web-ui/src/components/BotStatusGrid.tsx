@@ -25,6 +25,7 @@ interface Props {
   lang: string;
   labels: {
     online: string;
+    offline: string;
     measuring: string;
     heartbeat: string;
     never: string;
