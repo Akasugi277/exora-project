@@ -48,8 +48,8 @@ export default function BotStatusCard({ name, language, status, lastHeartbeat, c
       className={`block rounded-xl border ${cls.border} bg-surface-alt p-5 hover:bg-border/20 transition-colors group`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div>
+      <div className="flex items-start justify-between gap-2 mb-4">
+        <div className="min-w-0">
           <p className="text-xs text-text-muted mb-0.5">Unit #{num}</p>
           <h3 className={`text-xl font-bold ${cls.text}`}>{name.charAt(0).toUpperCase() + name.slice(1)}</h3>
           <p className="text-xs text-text-muted mt-0.5 flex items-center gap-1.5">
@@ -67,7 +67,7 @@ export default function BotStatusCard({ name, language, status, lastHeartbeat, c
           </p>
         </div>
         {/* Status badge */}
-        <span className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
+        <span className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap shrink-0 ${
           loading
             ? 'bg-slate-800/60 text-slate-300'
             : online

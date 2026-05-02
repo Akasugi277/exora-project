@@ -4,7 +4,7 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Public pages (no session required)
-  if (pathname === '/' || pathname === '/docs' || pathname.startsWith('/docs/')) {
+  if (pathname === '/' || pathname === '/docs' || pathname.startsWith('/docs/') || pathname === '/terms' || pathname.startsWith('/terms/')) {
     return NextResponse.next();
   }
 

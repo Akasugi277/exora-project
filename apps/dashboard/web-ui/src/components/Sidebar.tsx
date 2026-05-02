@@ -49,8 +49,8 @@ const BOT_LINKS = [
 ] as const;
 
 const T = {
-  ja: { home: 'ホーム', docs: 'ドキュメント', bots: 'BOT', logout: 'ログアウト', loggedInAs: 'ログイン中', langHref: '?lang=en', langLabel: 'English', login: 'Discord でログイン', loginRequired: 'ログインするとアクセスできます' },
-  en: { home: 'Home', docs: 'Docs', bots: 'Bots', logout: 'Log out', loggedInAs: 'Logged in as', langHref: '?lang=ja', langLabel: '日本語', login: 'Login with Discord', loginRequired: 'Login to access' },
+  ja: { home: 'ホーム', docs: 'ドキュメント', terms: '利用規約', bots: 'BOT', logout: 'ログアウト', loggedInAs: 'ログイン中', langHref: '?lang=en', langLabel: 'English', login: 'Discord でログイン', loginRequired: 'ログインするとアクセスできます' },
+  en: { home: 'Home', docs: 'Docs', terms: 'Terms', bots: 'Bots', logout: 'Log out', loggedInAs: 'Logged in as', langHref: '?lang=ja', langLabel: '日本語', login: 'Login with Discord', loginRequired: 'Login to access' },
 } as const;
 
 export default function Sidebar({ user }: SidebarProps) {
@@ -111,6 +111,20 @@ export default function Sidebar({ user }: SidebarProps) {
             <path d="M8 3v2a2 2 0 002 2h7" />
           </svg>
           {t.docs}
+        </Link>
+
+        <Link
+          href={`/terms?lang=${lang}`}
+          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+            isActive('/terms')
+              ? 'bg-accent-blue/10 text-accent-blue'
+              : 'text-text-muted hover:text-text-base hover:bg-border/40'
+          }`}
+        >
+          <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 2a1 1 0 00-1 1v1H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2h-3V3a1 1 0 00-1-1zm0 4a1 1 0 00-1 1v4a1 1 0 002 0V7a1 1 0 00-1-1zM9 15a1 1 0 112 0 1 1 0 01-2 0z" clipRule="evenodd" />
+          </svg>
+          {t.terms}
         </Link>
 
         {/* BOT group */}
