@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getSessionUser } from '@/lib/session';
 import Sidebar from '@/components/Sidebar';
+import TopRightControls from '@/components/TopRightControls';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
@@ -37,12 +38,33 @@ export default async function RootLayout({
 
   return (
     <html lang="ja">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => {
+              try {
+                const sync = localStorage.getItem('exora-theme-sync');
+                const manual = localStorage.getItem('exora-theme-manual');
+                const syncWithSystem = sync === null ? true : sync === 'true';
+                const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = syncWithSystem
+                  ? (systemDark ? 'dark' : 'light')
+                  : (manual === 'light' || manual === 'dark' ? manual : 'dark');
+                document.documentElement.setAttribute('data-theme', theme);
+              } catch (_) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+              }
+            })();`,
+          }}
+        />
+      </head>
       <body className="bg-surface text-text-base antialiased">
         <div className="flex min-h-screen">
           <Suspense>
             <Sidebar user={sidebarUser} />
           </Suspense>
           <main className="flex-1 ml-56 min-h-screen overflow-y-auto">
+            <TopRightControls />
             {children}
           </main>
         </div>

@@ -2,9 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --surface: 246 251 255;
+  --surface-alt: 236 246 255;
+  --border: 188 214 238;
+  --text-muted: 88 121 153;
+  --text-base: 24 52 79;
+  --accent-blue: 74 160 228;
+}
+
+html[data-theme='dark'] {
+  --surface: 12 22 40;
+  --surface-alt: 20 32 56;
+  --border: 52 73 112;
+  --text-muted: 149 173 214;
+  --text-base: 227 238 255;
+  --accent-blue: 126 187 242;
+}
+
 @layer base {
   body {
     @apply bg-surface text-text-base;
+    background-image: radial-gradient(circle at 15% -10%, rgb(var(--accent-blue) / 0.15), transparent 35%),
+      radial-gradient(circle at 95% 0%, rgb(var(--accent-blue) / 0.1), transparent 30%);
   }
 
   ::-webkit-scrollbar {

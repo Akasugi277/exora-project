@@ -5,12 +5,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        surface: '#0d1117',
-        'surface-alt': '#161b22',
-        border: '#30363d',
-        'text-muted': '#8b949e',
-        'text-base': '#e6edf3',
-        'accent-blue': '#58a6ff',
+        surface: 'rgb(var(--surface) / <alpha-value>)',
+        'surface-alt': 'rgb(var(--surface-alt) / <alpha-value>)',
+        border: 'rgb(var(--border) / <alpha-value>)',
+        'text-muted': 'rgb(var(--text-muted) / <alpha-value>)',
+        'text-base': 'rgb(var(--text-base) / <alpha-value>)',
+        'accent-blue': 'rgb(var(--accent-blue) / <alpha-value>)',
         jupiter: '#d97706',
         saturn: '#a78bfa',
         uranus: '#67e8f9',
