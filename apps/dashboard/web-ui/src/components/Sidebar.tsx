@@ -49,8 +49,8 @@ const BOT_LINKS = [
 ] as const;
 
 const T = {
-  ja: { home: 'ホーム', docs: 'ドキュメント', terms: '利用規約', bots: 'BOT', logout: 'ログアウト', loggedInAs: 'ログイン中', langHref: '?lang=en', langLabel: 'English', login: 'Discord でログイン', loginRequired: 'ログインするとアクセスできます' },
-  en: { home: 'Home', docs: 'Docs', terms: 'Terms', bots: 'Bots', logout: 'Log out', loggedInAs: 'Logged in as', langHref: '?lang=ja', langLabel: '日本語', login: 'Login with Discord', loginRequired: 'Login to access' },
+  ja: { home: 'ホーム', docs: 'ドキュメント', terms: '利用規約', announcements: 'お知らせ', bots: 'BOT', logout: 'ログアウト', loggedInAs: 'ログイン中', langHref: '?lang=en', langLabel: 'English', login: 'Discord でログイン', loginRequired: 'ログインするとアクセスできます' },
+  en: { home: 'Home', docs: 'Docs', terms: 'Terms', announcements: 'Announcements', bots: 'Bots', logout: 'Log out', loggedInAs: 'Logged in as', langHref: '?lang=ja', langLabel: '日本語', login: 'Login with Discord', loginRequired: 'Login to access' },
 } as const;
 
 export default function Sidebar({ user }: SidebarProps) {
@@ -111,6 +111,20 @@ export default function Sidebar({ user }: SidebarProps) {
             <path d="M8 3v2a2 2 0 002 2h7" />
           </svg>
           {t.docs}
+        </Link>
+
+        <Link
+          href={`/announcements?lang=${lang}`}
+          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+            isActive('/announcements')
+              ? 'bg-accent-blue/10 text-accent-blue'
+              : 'text-text-muted hover:text-text-base hover:bg-border/40'
+          }`}
+        >
+          <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+          </svg>
+          {t.announcements}
         </Link>
 
         <Link

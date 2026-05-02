@@ -7,6 +7,17 @@ type Theme = 'light' | 'dark';
 
 const STORAGE_SYNC = 'exora-theme-sync';
 const STORAGE_MANUAL = 'exora-theme-manual';
+const STORAGE_FONT = 'exora-font-size';
+
+type FontSize = 'small' | 'normal' | 'large';
+
+function applyFontSize(size: FontSize): void {
+  if (size === 'normal') {
+    document.documentElement.removeAttribute('data-font-size');
+  } else {
+    document.documentElement.setAttribute('data-font-size', size);
+  }
+}
 
 function resolveSystemTheme(): Theme {
   if (typeof window === 'undefined') return 'light';
@@ -23,19 +34,29 @@ export default function TopRightControls() {
 
   const [syncWithSystem, setSyncWithSystem] = useState(true);
   const [manualTheme, setManualTheme] = useState<Theme>('dark');
+  const [fontSize, setFontSize] = useState<FontSize>('normal');
   const [now, setNow] = useState<Date>(new Date());
 
   useEffect(() => {
     const savedSync = localStorage.getItem(STORAGE_SYNC);
     const savedManual = localStorage.getItem(STORAGE_MANUAL) as Theme | null;
+    const savedFont = localStorage.getItem(STORAGE_FONT) as FontSize | null;
 
     const nextSync = savedSync === null ? true : savedSync === 'true';
     const nextManual: Theme = savedManual === 'light' || savedManual === 'dark' ? savedManual : 'dark';
+    const nextFont: FontSize = savedFont === 'small' || savedFont === 'large' ? savedFont : 'normal';
 
     setSyncWithSystem(nextSync);
     setManualTheme(nextManual);
+    setFontSize(nextFont);
     applyTheme(nextSync ? resolveSystemTheme() : nextManual);
+    applyFontSize(nextFont);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_FONT, fontSize);
+    applyFontSize(fontSize);
+  }, [fontSize]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_SYNC, String(syncWithSystem));
@@ -75,8 +96,8 @@ export default function TopRightControls() {
   }, [lang, now, tz]);
 
   const t = {
-    ja: { now: '現在時刻', light: 'ライト', dark: 'ダーク', system: 'PC同期' },
-    en: { now: 'Now', light: 'Light', dark: 'Dark', system: 'System' },
+    ja: { now: '現在時刻', light: 'ライト', dark: 'ダーク', system: 'PC同期', small: '小', normal: '標準', large: '大' },
+    en: { now: 'Now', light: 'Light', dark: 'Dark', system: 'System', small: 'Small', normal: 'Normal', large: 'Large' },
   }[lang];
 
   const mode: 'light' | 'dark' | 'system' = syncWithSystem ? 'system' : manualTheme;
@@ -86,6 +107,26 @@ export default function TopRightControls() {
       <div className="hidden sm:block text-right">
         <p className="text-[10px] text-text-muted">{t.now}</p>
         <p className="text-xs font-mono text-text-base whitespace-nowrap">{clockText}</p>
+      </div>
+
+      <div className="h-6 w-px bg-border" />
+
+      {/* Font size toggle */}
+      <div className="inline-flex items-center gap-0.5 rounded-xl border border-border bg-surface px-1 py-1">
+        {(['small', 'normal', 'large'] as const).map((size) => (
+          <button
+            key={size}
+            type="button"
+            title={t[size]}
+            aria-label={t[size]}
+            onClick={() => setFontSize(size)}
+            className={`h-8 w-8 rounded-lg grid place-items-center font-bold transition-colors ${
+              fontSize === size ? 'bg-accent-blue/25 text-accent-blue' : 'text-text-muted hover:text-text-base hover:bg-border/30'
+            }`}
+          >
+            <span className={size === 'small' ? 'text-[10px]' : size === 'large' ? 'text-[16px]' : 'text-[13px]'}>A</span>
+          </button>
+        ))}
       </div>
 
       <div className="h-6 w-px bg-border" />

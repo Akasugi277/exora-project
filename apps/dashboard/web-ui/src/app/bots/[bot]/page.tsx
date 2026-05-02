@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import ComingSoon from '@/components/ComingSoon';
 import HeartbeatChart from '@/components/HeartbeatChart';
 import BotStatusHeader from '@/components/BotStatusHeader';
 
@@ -61,10 +60,6 @@ const T = {
     heartbeat: '最終ハートビート',
     never: 'なし',
     heartbeatChart: 'ハートビート履歴',
-    serversTitle: '導入サーバー一覧',
-    serversDesc: 'このBOTが導入されているDiscordサーバーの一覧を表示予定です。',
-    settingsTitle: '機能設定',
-    settingsDesc: 'サーバー・チャンネルごとの機能のON/OFFや詳細設定を管理予定です。',
   },
   en: {
     unit: 'Unit',
@@ -75,10 +70,6 @@ const T = {
     heartbeat: 'Last heartbeat',
     never: 'never',
     heartbeatChart: 'Heartbeat History',
-    serversTitle: 'Installed Servers',
-    serversDesc: 'A list of Discord servers where this bot is installed will be shown here.',
-    settingsTitle: 'Feature Settings',
-    settingsDesc: 'Per-server and per-channel feature configuration will be managed here.',
   },
 } as const;
 
@@ -146,9 +137,6 @@ export default async function BotPage({
         />
       </div>
 
-      {/* Coming Soon sections */}
-      <ComingSoon title={t.serversTitle} description={t.serversDesc} />
-      <ComingSoon title={t.settingsTitle} description={t.settingsDesc} />
     </div>
   );
 }

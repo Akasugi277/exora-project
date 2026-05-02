@@ -20,6 +20,10 @@ html[data-theme='dark'] {
   --accent-blue: 126 187 242;
 }
 
+/* Font size scale */
+html[data-font-size='small'] { font-size: 13px; }
+html[data-font-size='large'] { font-size: 17px; }
+
 @layer base {
   body {
     @apply bg-surface text-text-base;

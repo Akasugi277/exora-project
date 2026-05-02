@@ -1,6 +1,8 @@
 import type { BotStatus } from './api/status/route';
 import BotStatusGrid from '@/components/BotStatusGrid';
 import ComingSoon from '@/components/ComingSoon';
+import AnnouncementList from '@/components/AnnouncementList';
+import { ANNOUNCEMENTS } from '@/data/announcements';
 
 // ─── i18n ────────────────────────────────────────────────────────────────────
 
@@ -10,6 +12,7 @@ const T = {
   ja: {
     title: 'ダッシュボード',
     subtitle: '全 BOT の稼働状況をリアルタイムで確認できます。',
+    announcementSection: 'お知らせ',
     statusSection: 'BOT 稼働状態',
     leaderboardTitle: 'ユーザーリーダーボード',
     leaderboardDesc: '各 BOT に紐づけられたユーザーのランキングを表示予定です。',
@@ -31,6 +34,7 @@ const T = {
   en: {
     title: 'Dashboard',
     subtitle: 'Monitor all bots in real time.',
+    announcementSection: 'Announcements',
     statusSection: 'Bot Status',
     leaderboardTitle: 'User Leaderboard',
     leaderboardDesc: 'Per-bot user rankings will be shown here.',
@@ -97,14 +101,25 @@ export default async function HomePage({
     <div className="px-8 py-8 max-w-5xl">
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-text-base">{t.title}</h1>
+        <h1 className="text-3xl font-bold text-text-base">{t.title}</h1>
         <p className="text-sm text-text-muted mt-1">{t.subtitle}</p>
       </div>
 
-      {/* BOT Status section */}
-      <section>
+      {/* Announcements section */}
+      <section className="mb-10">
         <h2 className="text-base font-semibold text-text-base mb-4 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <svg className="w-4 h-4 text-accent-blue shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+          </svg>
+          {t.announcementSection}
+        </h2>
+        <AnnouncementList announcements={ANNOUNCEMENTS} lang={lang} />
+      </section>
+
+      {/* BOT Status section */}
+      <section className="mb-10">
+        <h2 className="text-base font-semibold text-text-base mb-4 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
           {t.statusSection}
         </h2>
         <BotStatusGrid
@@ -114,11 +129,11 @@ export default async function HomePage({
         />
       </section>
 
-      {/* Coming Soon: Leaderboard */}
-      <ComingSoon title={t.leaderboardTitle} description={t.leaderboardDesc} />
-
-      {/* Coming Soon: Server Board */}
-      <ComingSoon title={t.boardTitle} description={t.boardDesc} />
+      {/* Coming Soon sections */}
+      <div className="space-y-6">
+        <ComingSoon title={t.leaderboardTitle} description={t.leaderboardDesc} />
+        <ComingSoon title={t.boardTitle} description={t.boardDesc} />
+      </div>
 
       {/* Footer */}
       <p className="mt-10 text-xs text-text-muted">{t.footer}</p>
