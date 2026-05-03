@@ -69,13 +69,13 @@ export default function BotStatusCard({ name, language, status, lastHeartbeat, c
         {/* Status badge */}
         <span className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap shrink-0 ${
           loading
-            ? 'bg-slate-800/60 text-slate-300'
+            ? 'status-badge-loading'
             : online
-              ? 'bg-emerald-900/40 text-emerald-400'
-              : 'bg-red-900/30 text-red-400'
+              ? 'status-badge-online'
+              : 'status-badge-offline'
         }`}>
           <span className={`w-1.5 h-1.5 rounded-full ${
-            loading ? 'bg-slate-300 animate-pulse' : online ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
+            loading ? 'bg-slate-400 animate-pulse' : online ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'
           }`} />
           {loading ? labels.measuring : online ? labels.online : labels.offline}
         </span>

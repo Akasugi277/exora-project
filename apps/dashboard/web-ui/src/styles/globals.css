@@ -49,6 +49,15 @@ html[data-font-size='large'] { font-size: 17px; }
   [data-theme='dark'] .ann-badge-promotion   { @apply bg-indigo-900/60  text-indigo-300; }
   [data-theme='dark'] .ann-badge-update      { @apply bg-emerald-900/60 text-emerald-300; }
   [data-theme='dark'] .ann-badge-info        { @apply bg-sky-900/60     text-sky-300; }
+
+  /* Bot status badge */
+  .status-badge-loading { @apply bg-slate-100     text-slate-700; }
+  .status-badge-online  { @apply bg-emerald-100   text-emerald-700; }
+  .status-badge-offline { @apply bg-red-100       text-red-700; }
+
+  [data-theme='dark'] .status-badge-loading { @apply bg-slate-800/60 text-slate-300; }
+  [data-theme='dark'] .status-badge-online  { @apply bg-emerald-900/40 text-emerald-400; }
+  [data-theme='dark'] .status-badge-offline { @apply bg-red-900/30 text-red-400; }
 }
 
 @layer base {
