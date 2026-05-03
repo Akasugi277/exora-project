@@ -24,6 +24,33 @@ html[data-theme='dark'] {
 html[data-font-size='small'] { font-size: 13px; }
 html[data-font-size='large'] { font-size: 17px; }
 
+@layer components {
+  /* Announcement card: light defaults, dark overrides */
+  .ann-card-incident    { @apply bg-red-50     border-red-200; }
+  .ann-card-maintenance { @apply bg-amber-50   border-amber-200; }
+  .ann-card-promotion   { @apply bg-indigo-50  border-indigo-200; }
+  .ann-card-update      { @apply bg-emerald-50 border-emerald-200; }
+  .ann-card-info        { @apply bg-sky-50     border-sky-200; }
+
+  [data-theme='dark'] .ann-card-incident    { @apply bg-red-950/40     border-red-700/50; }
+  [data-theme='dark'] .ann-card-maintenance { @apply bg-amber-950/40   border-amber-700/50; }
+  [data-theme='dark'] .ann-card-promotion   { @apply bg-indigo-950/40  border-indigo-600/50; }
+  [data-theme='dark'] .ann-card-update      { @apply bg-emerald-950/40 border-emerald-700/50; }
+  [data-theme='dark'] .ann-card-info        { @apply bg-sky-950/40     border-sky-600/50; }
+
+  .ann-badge-incident    { @apply bg-red-100     text-red-700; }
+  .ann-badge-maintenance { @apply bg-amber-100   text-amber-700; }
+  .ann-badge-promotion   { @apply bg-indigo-100  text-indigo-700; }
+  .ann-badge-update      { @apply bg-emerald-100 text-emerald-700; }
+  .ann-badge-info        { @apply bg-sky-100     text-sky-700; }
+
+  [data-theme='dark'] .ann-badge-incident    { @apply bg-red-900/60     text-red-300; }
+  [data-theme='dark'] .ann-badge-maintenance { @apply bg-amber-900/60   text-amber-300; }
+  [data-theme='dark'] .ann-badge-promotion   { @apply bg-indigo-900/60  text-indigo-300; }
+  [data-theme='dark'] .ann-badge-update      { @apply bg-emerald-900/60 text-emerald-300; }
+  [data-theme='dark'] .ann-badge-info        { @apply bg-sky-900/60     text-sky-300; }
+}
+
 @layer base {
   body {
     @apply bg-surface text-text-base;
