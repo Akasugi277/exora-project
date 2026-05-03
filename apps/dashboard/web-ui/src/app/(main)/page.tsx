@@ -1,4 +1,4 @@
-import type { BotStatus } from './api/status/route';
+import type { BotStatus } from '@/app/api/status/route';
 import BotStatusGrid from '@/components/BotStatusGrid';
 import ComingSoon from '@/components/ComingSoon';
 import AnnouncementList from '@/components/AnnouncementList';

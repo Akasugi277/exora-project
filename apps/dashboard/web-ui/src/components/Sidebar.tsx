@@ -49,8 +49,8 @@ const BOT_LINKS = [
 ] as const;
 
 const T = {
-  ja: { home: 'ホーム', docs: 'ドキュメント', terms: '利用規約', announcements: 'お知らせ', bots: 'BOT', logout: 'ログアウト', loggedInAs: 'ログイン中', langHref: '?lang=en', langLabel: 'English', login: 'Discord でログイン', loginRequired: 'ログインするとアクセスできます' },
-  en: { home: 'Home', docs: 'Docs', terms: 'Terms', announcements: 'Announcements', bots: 'Bots', logout: 'Log out', loggedInAs: 'Logged in as', langHref: '?lang=ja', langLabel: '日本語', login: 'Login with Discord', loginRequired: 'Login to access' },
+  ja: { home: 'ホーム', docs: 'ドキュメント', terms: '利用規約', announcements: 'お知らせ', account: 'アカウント', bots: 'BOT', logout: 'ログアウト', loggedInAs: 'ログイン中', langHref: '?lang=en', langLabel: 'English', login: 'Discord でログイン', loginRequired: 'ログインするとアクセスできます' },
+  en: { home: 'Home', docs: 'Docs', terms: 'Terms', announcements: 'Announcements', account: 'Account', bots: 'Bots', logout: 'Log out', loggedInAs: 'Logged in as', langHref: '?lang=ja', langLabel: '日本語', login: 'Login with Discord', loginRequired: 'Login to access' },
 } as const;
 
 export default function Sidebar({ user }: SidebarProps) {
@@ -140,6 +140,23 @@ export default function Sidebar({ user }: SidebarProps) {
           </svg>
           {t.terms}
         </Link>
+
+        {/* Account — only shown when logged in */}
+        {user && (
+          <Link
+            href={`/account?lang=${lang}`}
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              isActive('/account')
+                ? 'bg-accent-blue/10 text-accent-blue'
+                : 'text-text-muted hover:text-text-base hover:bg-border/40'
+            }`}
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+            {t.account}
+          </Link>
+        )}
 
         {/* BOT group */}
         <div className="pt-3 pb-1 px-3">
