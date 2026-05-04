@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getSessionUser } from '@/lib/session';
 import { isBotKey, BOT_META } from '@/lib/bot-meta';
 import type { BotKey } from '@/lib/bot-meta';
-import BotSidebar from '@/components/BotSidebar';
+import BotContextSidebar from '@/components/BotContextSidebar';
 
 function sidebarAvatarUrl(user: NonNullable<Awaited<ReturnType<typeof getSessionUser>>>): string {
   if (!user.avatar) {
@@ -31,7 +31,7 @@ export default async function BotLayout({
   return (
     <div className="flex min-h-screen">
       <Suspense>
-        <BotSidebar bot={bot as BotKey} user={sidebarUser} />
+        <BotContextSidebar bot={bot as BotKey} user={sidebarUser} />
       </Suspense>
       <main className="flex-1 ml-56 min-h-screen overflow-y-auto">
         {children}

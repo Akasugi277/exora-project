@@ -20,8 +20,7 @@ const T = {
     backToMain: 'Exora メインへ',
     overview: 'ダッシュボード',
     leaderboard: 'リーダーボード',
-    servers: '参加サーバー',
-    settings: 'サーバー設定',
+    servers: 'サーバー一覧',
     logout: 'ログアウト',
     loggedInAs: 'ログイン中',
     langHref: '?lang=en',
@@ -32,8 +31,7 @@ const T = {
     backToMain: 'Back to Exora',
     overview: 'Dashboard',
     leaderboard: 'Leaderboard',
-    servers: 'Shared Servers',
-    settings: 'Server Settings',
+    servers: 'Server List',
     logout: 'Log out',
     loggedInAs: 'Logged in as',
     langHref: '?lang=ja',
@@ -90,15 +88,6 @@ export default function BotSidebar({ bot, user }: Props) {
       icon: (
         <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
           <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a4.978 4.978 0 00-1.022-3.021A3 3 0 0119 17v1h-3zM4.022 13.979A4.978 4.978 0 003 17v1H0v-1a3 3 0 013.022-3.021z" />
-        </svg>
-      ),
-    },
-    {
-      href: `/bots/${bot}/settings`,
-      label: t.settings,
-      icon: (
-        <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
         </svg>
       ),
     },

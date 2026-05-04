@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import HeartbeatChart from '@/components/HeartbeatChart';
 import BotStatusHeader from '@/components/BotStatusHeader';
+import ServersClient from '@/components/ServersClient';
 import { isBotKey, BOT_META, BOT_FAVICONS } from '@/lib/bot-meta';
 import type { BotKey } from '@/lib/bot-meta';
 
@@ -16,6 +17,7 @@ const T = {
     heartbeat: '最終ハートビート',
     never: 'なし',
     heartbeatChart: 'ハートビート履歴',
+    serverList: 'サーバー一覧',
   },
   en: {
     unit: 'Unit',
@@ -26,6 +28,7 @@ const T = {
     heartbeat: 'Last heartbeat',
     never: 'never',
     heartbeatChart: 'Heartbeat History',
+    serverList: 'Server List',
   },
 } as const;
 
@@ -90,6 +93,23 @@ export default async function BotPage({
           botName={bot}
           accentColor={meta.color}
           lang={lang}
+        />
+      </div>
+
+      {/* Shared servers */}
+      <div className="mb-6">
+        <h2 className="text-base font-semibold text-text-base mb-4 flex items-center gap-2">
+          <svg className="w-4 h-4 text-accent-blue shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a4.978 4.978 0 00-1.022-3.021A3 3 0 0119 17v1h-3zM4.022 13.979A4.978 4.978 0 003 17v1H0v-1a3 3 0 013.022-3.021z" />
+          </svg>
+          {t.serverList}
+        </h2>
+        <ServersClient
+          bot={bot}
+          accentClass={meta.accentClass}
+          borderClass={meta.borderClass}
+          bgClass={meta.bgClass}
+          embedded
         />
       </div>
 

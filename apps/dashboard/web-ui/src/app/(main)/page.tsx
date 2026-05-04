@@ -2,6 +2,7 @@ import type { BotStatus } from '@/app/api/status/route';
 import BotStatusGrid from '@/components/BotStatusGrid';
 import ComingSoon from '@/components/ComingSoon';
 import AnnouncementList from '@/components/AnnouncementList';
+import SharedServersOverview from '@/components/SharedServersOverview';
 import { ANNOUNCEMENTS } from '@/data/announcements';
 
 // ─── i18n ────────────────────────────────────────────────────────────────────
@@ -14,10 +15,9 @@ const T = {
     subtitle: '全 BOT の稼働状況をリアルタイムで確認できます。',
     announcementSection: 'お知らせ',
     statusSection: 'BOT 稼働状態',
+    serversSection: 'サーバー一覧',
     leaderboardTitle: 'ユーザーリーダーボード',
     leaderboardDesc: '各 BOT に紐づけられたユーザーのランキングを表示予定です。',
-    boardTitle: 'サーバー掲示板',
-    boardDesc: 'BOT が導入されているサーバーの一覧を掲示板形式で表示予定です。',
     unit: 'ユニット',
     online: 'オンライン',
     offline: 'オフライン',
@@ -36,10 +36,9 @@ const T = {
     subtitle: 'Monitor all bots in real time.',
     announcementSection: 'Announcements',
     statusSection: 'Bot Status',
+    serversSection: 'Server List',
     leaderboardTitle: 'User Leaderboard',
     leaderboardDesc: 'Per-bot user rankings will be shown here.',
-    boardTitle: 'Server Board',
-    boardDesc: 'A bulletin board listing servers where each bot is installed.',
     unit: 'Unit',
     online: 'online',
     offline: 'offline',
@@ -129,10 +128,20 @@ export default async function HomePage({
         />
       </section>
 
+      {/* Shared servers section */}
+      <section className="mb-10">
+        <h2 className="text-base font-semibold text-text-base mb-4 flex items-center gap-2">
+          <svg className="w-4 h-4 text-accent-blue shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a4.978 4.978 0 00-1.022-3.021A3 3 0 0119 17v1h-3zM4.022 13.979A4.978 4.978 0 003 17v1H0v-1a3 3 0 013.022-3.021z" />
+          </svg>
+          {t.serversSection}
+        </h2>
+        <SharedServersOverview lang={lang} />
+      </section>
+
       {/* Coming Soon sections */}
       <div className="space-y-6">
         <ComingSoon title={t.leaderboardTitle} description={t.leaderboardDesc} />
-        <ComingSoon title={t.boardTitle} description={t.boardDesc} />
       </div>
 
       {/* Footer */}

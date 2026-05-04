@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
@@ -17,7 +18,7 @@ interface Guild {
 
 const T = {
   ja: {
-    title: '参加サーバー',
+    title: 'サーバー一覧',
     subtitle: 'あなたと BOT が共通して参加しているサーバーの一覧です。',
     loading: '読み込み中...',
     empty: 'このBOTと共通のサーバーが見つかりません。',
@@ -30,7 +31,7 @@ const T = {
     error: '取得に失敗しました。再度お試しください。',
   },
   en: {
-    title: 'Shared Servers',
+    title: 'Server List',
     subtitle: 'Servers where both you and this bot are present.',
     loading: 'Loading...',
     empty: 'No shared servers found with this bot.',
@@ -95,9 +96,10 @@ interface Props {
   accentClass: string;
   borderClass: string;
   bgClass: string;
+  embedded?: boolean;
 }
 
-export default function ServersClient({ bot, accentClass, borderClass, bgClass }: Props) {
+export default function ServersClient({ bot, accentClass, borderClass, bgClass, embedded = false }: Props) {
   const searchParams = useSearchParams();
   const lang: 'ja' | 'en' = searchParams.get('lang') === 'en' ? 'en' : 'ja';
   const t = T[lang];
@@ -130,8 +132,8 @@ export default function ServersClient({ bot, accentClass, borderClass, bgClass }
     return () => { cancelled = true; };
   }, [bot]);
 
-  return (
-    <div className="px-8 py-8 max-w-4xl">
+  const content = (
+    <>
       {/* Header */}
       <div className={`rounded-2xl border ${borderClass} ${bgClass} px-7 py-5 mb-8`}>
         <h2 className={`text-xl font-bold mb-1 ${accentClass}`}>{t.title}</h2>
@@ -200,32 +202,44 @@ export default function ServersClient({ bot, accentClass, borderClass, bgClass }
           {guilds.map((guild) => {
             const isAdmin = hasAdmin(guild.permissions);
             return (
-              <li
-                key={guild.id}
-                className="flex items-center gap-4 rounded-xl border border-border bg-surface-alt px-5 py-3 hover:bg-border/30 transition-colors"
-              >
-                <GuildIcon guild={guild} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-text-base truncate">{guild.name}</p>
-                  <p className="text-xs text-text-muted">ID: {guild.id}</p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {guild.owner && (
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                      {t.owner}
-                    </span>
-                  )}
-                  {!guild.owner && isAdmin && (
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                      {t.admin}
-                    </span>
-                  )}
-                </div>
+              <li key={guild.id}>
+                <Link
+                  href={`/bots/${bot}/servers/${guild.id}?lang=${lang}&guildName=${encodeURIComponent(guild.name)}${guild.icon ? `&guildIcon=${encodeURIComponent(guild.icon)}` : ''}`}
+                  className="flex items-center gap-4 rounded-xl border border-border bg-surface-alt px-5 py-3 hover:bg-border/30 transition-colors"
+                >
+                  <GuildIcon guild={guild} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-text-base truncate">{guild.name}</p>
+                    <p className="text-xs text-text-muted">ID: {guild.id}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {guild.owner && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        {t.owner}
+                      </span>
+                    )}
+                    {!guild.owner && isAdmin && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                        {t.admin}
+                      </span>
+                    )}
+                  </div>
+                </Link>
               </li>
             );
           })}
         </ul>
       )}
+    </>
+  );
+
+  if (embedded) {
+    return <>{content}</>;
+  }
+
+  return (
+    <div className="px-8 py-8 max-w-4xl">
+      {content}
     </div>
   );
 }
