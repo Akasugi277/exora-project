@@ -20,6 +20,7 @@ const T = {
     backToMain: 'Exora メインへ',
     overview: 'ダッシュボード',
     leaderboard: 'リーダーボード',
+    servers: '参加サーバー',
     settings: 'サーバー設定',
     logout: 'ログアウト',
     loggedInAs: 'ログイン中',
@@ -31,6 +32,7 @@ const T = {
     backToMain: 'Back to Exora',
     overview: 'Dashboard',
     leaderboard: 'Leaderboard',
+    servers: 'Shared Servers',
     settings: 'Server Settings',
     logout: 'Log out',
     loggedInAs: 'Logged in as',
@@ -79,6 +81,15 @@ export default function BotSidebar({ bot, user }: Props) {
       icon: (
         <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
           <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+        </svg>
+      ),
+    },
+    {
+      href: `/bots/${bot}/servers`,
+      label: t.servers,
+      icon: (
+        <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a4.978 4.978 0 00-1.022-3.021A3 3 0 0119 17v1h-3zM4.022 13.979A4.978 4.978 0 003 17v1H0v-1a3 3 0 013.022-3.021z" />
         </svg>
       ),
     },

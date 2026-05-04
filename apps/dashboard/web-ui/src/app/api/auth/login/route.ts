@@ -15,7 +15,8 @@ export async function GET() {
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: 'code',
-    scope: 'identify',
+    scope: 'identify guilds',
+    prompt: 'consent',
   });
 
   return NextResponse.redirect(

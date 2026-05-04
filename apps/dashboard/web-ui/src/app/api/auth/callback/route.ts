@@ -75,6 +75,7 @@ export async function GET(req: NextRequest) {
     discriminator: discordUser.discriminator,
     avatar: discordUser.avatar,
     global_name: discordUser.global_name,
+    accessToken: tokenData.access_token,
   });
 
   const res = NextResponse.redirect(appUrl('/'));
