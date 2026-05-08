@@ -16,6 +16,7 @@ export interface BotMeta {
   accentClass: string;
   bgClass: string;
   borderClass: string;
+  inviteUrl: string;
 }
 
 export const BOT_META: Record<BotKey, BotMeta> = {
@@ -26,6 +27,7 @@ export const BOT_META: Record<BotKey, BotMeta> = {
     accentClass: 'text-jupiter',
     bgClass: 'bg-jupiter/10',
     borderClass: 'border-jupiter/40',
+    inviteUrl: 'https://discord.com/oauth2/authorize?client_id=1499401807493988553',
   },
   saturn: {
     num: 2,
@@ -34,6 +36,7 @@ export const BOT_META: Record<BotKey, BotMeta> = {
     accentClass: 'text-saturn',
     bgClass: 'bg-saturn/10',
     borderClass: 'border-saturn/40',
+    inviteUrl: 'https://discord.com/oauth2/authorize?client_id=1499401951761272912',
   },
   uranus: {
     num: 3,
@@ -42,6 +45,7 @@ export const BOT_META: Record<BotKey, BotMeta> = {
     accentClass: 'text-uranus',
     bgClass: 'bg-uranus/10',
     borderClass: 'border-uranus/40',
+    inviteUrl: 'https://discord.com/oauth2/authorize?client_id=1499402051371663520',
   },
   neptune: {
     num: 4,
@@ -50,6 +54,7 @@ export const BOT_META: Record<BotKey, BotMeta> = {
     accentClass: 'text-neptune',
     bgClass: 'bg-neptune/10',
     borderClass: 'border-neptune/40',
+    inviteUrl: 'https://discord.com/oauth2/authorize?client_id=1499402148176466101',
   },
 };
 
