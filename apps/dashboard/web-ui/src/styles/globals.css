@@ -9,6 +9,11 @@
   --text-muted: 88 121 153;
   --text-base: 24 52 79;
   --accent-blue: 74 160 228;
+  /* Bot colors – light mode */
+  --color-jupiter: 181 101 29;   /* #B5651D Royal Amber */
+  --color-saturn:  154 140 89;   /* #9A8C59 Sage Gold */
+  --color-uranus:  58 155 155;   /* #3A9B9B Deep Teal */
+  --color-neptune: 63 81 181;    /* #3F51B5 Indigo Blue */
 }
 
 html[data-theme='dark'] {
@@ -18,6 +23,11 @@ html[data-theme='dark'] {
   --text-muted: 149 173 214;
   --text-base: 227 238 255;
   --accent-blue: 126 187 242;
+  /* Bot colors – dark mode */
+  --color-jupiter: 255 183 77;   /* #FFB74D Soft Orange */
+  --color-saturn:  224 224 128;  /* #E0E080 Champagne Yellow */
+  --color-uranus:  129 212 250;  /* #81D4FA Sky Cyan */
+  --color-neptune: 121 134 203;  /* #7986CB Light Iris */
 }
 
 /* Font size scale */

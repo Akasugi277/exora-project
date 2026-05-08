@@ -29,15 +29,15 @@ function formatHeartbeat(ts: string | null, never: string): string {
   return isNaN(d.getTime()) ? never : d.toLocaleString('ja-JP');
 }
 
-const COLOR_CLASSES: Record<string, { border: string; dot: string; text: string; bg: string }> = {
-  '#d97706': { border: 'border-jupiter/40', dot: 'bg-jupiter', text: 'text-jupiter', bg: 'bg-jupiter/10' },
-  '#a78bfa': { border: 'border-saturn/40',  dot: 'bg-saturn',  text: 'text-saturn',  bg: 'bg-saturn/10'  },
-  '#67e8f9': { border: 'border-uranus/40',  dot: 'bg-uranus',  text: 'text-uranus',  bg: 'bg-uranus/10'  },
-  '#34d399': { border: 'border-neptune/40', dot: 'bg-neptune', text: 'text-neptune', bg: 'bg-neptune/10'  },
+const BOT_CLASSES: Record<string, { border: string; dot: string; text: string; bg: string }> = {
+  jupiter: { border: 'border-jupiter/40', dot: 'bg-jupiter', text: 'text-jupiter', bg: 'bg-jupiter/10' },
+  saturn:  { border: 'border-saturn/40',  dot: 'bg-saturn',  text: 'text-saturn',  bg: 'bg-saturn/10'  },
+  uranus:  { border: 'border-uranus/40',  dot: 'bg-uranus',  text: 'text-uranus',  bg: 'bg-uranus/10'  },
+  neptune: { border: 'border-neptune/40', dot: 'bg-neptune', text: 'text-neptune', bg: 'bg-neptune/10'  },
 };
 
-export default function BotStatusCard({ name, language, status, lastHeartbeat, color, num, lang, labels }: BotStatusCardProps) {
-  const cls = COLOR_CLASSES[color] ?? { border: 'border-border', dot: 'bg-text-muted', text: 'text-text-muted', bg: 'bg-border/20' };
+export default function BotStatusCard({ name, language, status, lastHeartbeat, color: _color, num, lang, labels }: BotStatusCardProps) {
+  const cls = BOT_CLASSES[name.toLowerCase()] ?? { border: 'border-border', dot: 'bg-text-muted', text: 'text-text-muted', bg: 'bg-border/20' };
   const faviconUrl = BOT_FAVICONS[name.toLowerCase()];
   const loading = status === 'loading';
   const online = status === 'online';

@@ -57,10 +57,10 @@ const T = {
 // ─── Bot metadata ─────────────────────────────────────────────────────────────
 
 const BOT_META: Record<string, { num: number; lang: string; color: string }> = {
-  jupiter: { num: 1, lang: 'Java / Discord4J',          color: '#d97706' },
-  saturn:  { num: 2, lang: 'TypeScript / discord.js',   color: '#a78bfa' },
-  uranus:  { num: 3, lang: 'Rust / Serenity',           color: '#67e8f9' },
-  neptune: { num: 4, lang: 'Haskell / discord-haskell', color: '#34d399' },
+  jupiter: { num: 1, lang: 'Java / Discord4J',          color: 'rgb(var(--color-jupiter))' },
+  saturn:  { num: 2, lang: 'TypeScript / discord.js',   color: 'rgb(var(--color-saturn))' },
+  uranus:  { num: 3, lang: 'Rust / Serenity',           color: 'rgb(var(--color-uranus))' },
+  neptune: { num: 4, lang: 'Haskell / discord-haskell', color: 'rgb(var(--color-neptune))' },
 };
 
 const FALLBACK: BotStatus[] = Object.entries(BOT_META).map(([name]) => ({
